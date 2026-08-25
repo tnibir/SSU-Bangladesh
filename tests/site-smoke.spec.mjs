@@ -8,7 +8,7 @@ function capturePageErrors(page) {
 
 test("Knowledge Hub calculator, tabs, themes, and mobile navigation work", async ({ page }) => {
   const errors = capturePageErrors(page);
-  await page.goto("/");
+  await page.goto("./");
   await expect(page).toHaveTitle(/Knowledge Hub/);
   await expect(page.locator("#statusOut")).toHaveText("Calculated");
 
@@ -42,7 +42,7 @@ test("theme and menu still initialize when localStorage is blocked", async ({ pa
   });
   const errors = capturePageErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("./");
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.locator(".site-nav")).toHaveClass(/menu-open/);
   await page.locator("#themeSelect").selectOption("ocean");
@@ -53,7 +53,7 @@ test("theme and menu still initialize when localStorage is blocked", async ({ pa
 test("Lifecycle chart renders, filters, searches, selects, and downloads", async ({ page }) => {
   const errors = capturePageErrors(page);
   await page.route("**/data/lifecycle-data.json*", route => route.abort());
-  await page.goto("/lifecycle-chart.html");
+  await page.goto("lifecycle-chart.html");
   await expect(page).toHaveTitle(/Lifecycle Chart/);
   await expect(page.locator("#chart .policyArc").first()).toBeVisible();
   const initialRings = await page.locator("#chart .policyArc").count();

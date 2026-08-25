@@ -1,6 +1,9 @@
 import { defineConfig } from "@playwright/test";
 
 const remoteBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
+const baseURL = remoteBaseUrl
+  ? `${remoteBaseUrl.replace(/\/$/, "")}/`
+  : "http://127.0.0.1:4173/";
 
 export default defineConfig({
   testDir: "./tests",
@@ -9,7 +12,7 @@ export default defineConfig({
   workers: 1,
   reporter: "line",
   use: {
-    baseURL: remoteBaseUrl || "http://127.0.0.1:4173",
+    baseURL,
     screenshot: "only-on-failure",
     trace: "retain-on-failure"
   },
