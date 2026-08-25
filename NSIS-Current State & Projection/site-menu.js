@@ -1,12 +1,22 @@
 
 (function(){
   const THEMES = new Set(["emerald","ocean","midnight","classic"]);
-  const storedTheme = localStorage.getItem("nsisSiteTheme");
+  const themeStorage = {
+    get(){
+      try { return window.localStorage.getItem("nsisSiteTheme"); }
+      catch { return null; }
+    },
+    set(theme){
+      try { window.localStorage.setItem("nsisSiteTheme", theme); }
+      catch { /* Keep the in-page theme when storage is unavailable. */ }
+    }
+  };
+  const storedTheme = themeStorage.get();
   const initialTheme = THEMES.has(storedTheme) ? storedTheme : (document.body.dataset.theme || "emerald");
   function applyTheme(theme){
     const safeTheme = THEMES.has(theme) ? theme : "emerald";
     document.body.dataset.theme = safeTheme;
-    localStorage.setItem("nsisSiteTheme", safeTheme);
+    themeStorage.set(safeTheme);
     const select = document.getElementById("themeSelect");
     if(select) select.value = safeTheme;
   }
