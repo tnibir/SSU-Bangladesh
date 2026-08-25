@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Bangladesh NSIS Website | Lifecycle Chart</title>
+<script src="vendor/d3/d3.min.js"></script>
+<script src="data/lifecycle-data.js?v=20260720"></script>
+<style>
+    :root{
+      --bg:#f7faf8;
+      --surface:#ffffff;
+      --ink:#0e1f18;
+      --muted:#64736b;
+      --line:#dce6df;
+      --green:#006a3d;
+      --red:#d31b1b;
+      --gold:#f2c94c;
+      --blue:#1b72b9;
+      --violet:#7552a8;
+      --teal:#008c8c;
+      --orange:#d97706;
+      --rose:#c0265a;
+      --shadow:0 16px 45px rgba(7,48,31,.12);
+      --ring-thin: 14;
+      --ring-hover: 42;
+      --static-label-size: 12px;
+      --age-label-size: 11px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font-sans);
+      background:
+        radial-gradient(circle at 15% 5%, rgba(0,106,61,.10), transparent 32%),
+        radial-gradient(circle at 90% 15%, rgba(211,27,27,.08), transparent 35%),
+        var(--bg);
+      color:var(--ink);
+    }
+    .app{
+      max-width:1600px;
+      margin:0 auto;
+      padding:24px;
+    }
+    header{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:18px;
+      align-items:end;
+      margin-bottom:18px;
+    }
+    .titleRow{display:flex;gap:16px;align-items:center}
+    .seal{
+      width:70px;height:70px;border:4px solid var(--green);border-radius:50%;
+      display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow);position:relative;flex:0 0 auto;
+    }
+    .seal::before{content:"";width:47px;height:47px;border-radius:50%;background:var(--red);display:block}
+    .seal::after{content:"BD";position:absolute;color:#ffd35d;font-weight:900;font-size:18px;letter-spacing:.03em}
+    h1{font-size:clamp(28px,4vw,56px);line-height:.98;margin:0;color:#074b2d;letter-spacing:-.04em}
+    .subtitle{margin:8px 0 0;color:var(--muted);font-size:16px;max-width:980px}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.06);
+      color:#123529;font-weight:700;white-space:nowrap
+    }
+    .badge .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(0,106,61,.14)}
+    .toolbar{
+      display:grid;
+      grid-template-columns:minmax(520px, 1fr) auto;
+      gap:12px;
+      align-items:start;
+      background:rgba(255,255,255,.82);
+      border:1px solid var(--line);
+      padding:12px;
+      border-radius:20px;
+      box-shadow:0 10px 35px rgba(8,46,31,.08);
+      backdrop-filter:blur(10px);
+      margin-bottom:16px;
+    }
+    .controlStack{display:grid;grid-template-rows:auto auto;gap:9px;min-width:0}
+    .searchBox{position:relative;display:block;height:46px;align-self:start;max-width:520px}
+    .searchBox input{
+      width:100%;height:46px;border:1px solid var(--line);border-radius:14px;padding:0 16px 0 46px;font-size:15px;background:#fff;color:var(--ink);outline:none;
+    }
+    .searchBox input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,106,61,.12)}
+    .searchBox .searchIcon{position:absolute;left:15px;top:23px;transform:translateY(-50%);width:20px;height:20px;display:grid;place-items:center;color:var(--muted);pointer-events:none;z-index:2}
+    .searchBox .searchIcon svg{width:18px;height:18px;display:block}
+    .filters{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(128px, 1fr));
+      gap:8px;
+      align-content:start;
+      max-width:760px;
+    }
+    .filterBtn, .toolBtn{
+      border:1px solid var(--line);background:#fff;color:#1c3328;border-radius:999px;padding:9px 10px;font-weight:700;font-size:13px;cursor:pointer;transition:.18s ease;
+    }
+    .toolBtn{padding:9px 12px;background:#fbfdfc}
+    .filterBtn:hover,.toolBtn:hover{border-color:#9ac4ad;transform:translateY(-1px)}
+    .filterBtn.active{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 8px 18px rgba(0,106,61,.18)}
+    .tools{
+      align-self:start;justify-self:end;min-width:430px;max-width:620px;
+      display:grid;grid-template-rows:auto auto;gap:10px;
+      background:linear-gradient(180deg,#ffffff,#f7fbf8);
+      border:1.5px solid #cfe3d8;border-radius:20px;padding:12px;
+      box-shadow:0 10px 28px rgba(7,48,31,.09);
+    }
+    .toolsHeading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#0b4f31;font-size:12px;font-weight:1000;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid #e1ece6;padding-bottom:8px}
+    .toolsHeading::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(0,106,61,.10)}
+    .toolActions{display:flex;gap:8px;align-items:center;justify-content:flex-end;white-space:nowrap;flex-wrap:wrap}
+    .widthControl{
+      display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;box-shadow:0 5px 14px rgba(0,0,0,.045);
+    }
+    .widthControl .volumeIcon{
+      width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#e8f5ee;color:var(--green);font-weight:900;line-height:1;
+    }
+    .widthControl label{font-size:12px;font-weight:900;color:#244538;white-space:nowrap}
+    .widthControl input{width:112px;accent-color:var(--green);cursor:pointer}
+    .widthControl output{min-width:28px;text-align:right;font-size:12px;font-weight:900;color:#0b4f31}
+    .boundaryLine{stroke-linecap:round;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));pointer-events:none}
+    .boundaryLabel{font-size:var(--static-label-size);font-weight:1000;letter-spacing:.08em;text-transform:uppercase;paint-order:stroke;stroke:#fff;stroke-width:6px;stroke-linejoin:round;pointer-events:none}
+    .boundaryDot{stroke:#fff;stroke-width:3;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));pointer-events:none}
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(660px,1.25fr) minmax(360px,.75fr);
+      gap:18px;
+      align-items:start;
+    }
+    .chartCard,.sideCard,.schemeCard,.noteCard{
+      background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);
+    }
+    .chartCard{position:relative;min-height:0;padding:18px;overflow:hidden;display:flex;flex-direction:column;gap:14px}
+    .chartHeader{
+      position:relative;z-index:3;max-width:none;pointer-events:auto;
+      display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:0 0 8px;text-align:left;
+    }
+    .chartHeader h2{margin:0;font-size:20px;color:#0b4f31;letter-spacing:-.02em;text-align:left}
+    .chartHeader p{margin:0;color:var(--muted);font-size:13px;line-height:1.4;max-width:920px;text-align:left}
+    #chartWrap{width:100%;height:clamp(660px,64vh,820px);min-height:660px;display:grid;place-items:center;overflow:hidden;position:relative;z-index:1;flex:0 0 auto}
+    svg{width:100%;max-width:100%;height:100%;display:block;overflow:hidden}
+    .resetLayer{fill:transparent;cursor:default;pointer-events:all}
+    .stageArc{stroke:#fff;stroke-width:1.5;cursor:pointer;transition:opacity .2s ease}
+    .stageArc.dim{opacity:.11!important}.stageArc.active{opacity:.38!important;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
+    .ageLine{stroke:rgba(14,31,24,.18);stroke-width:1;stroke-dasharray:3 4}
+    .policyArc{cursor:pointer;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12));transition:opacity .16s ease;stroke:#fff;stroke-width:1.25px;stroke-linejoin:round;paint-order:stroke fill}
+    .policyArc.dim{opacity:.10!important;filter:none}.policyArc.active{opacity:1!important;stroke-width:1.7px;filter:drop-shadow(0 10px 16px rgba(0,0,0,.25))}
+    .ringGuide{fill:none;stroke:rgba(0,0,0,.055);stroke-width:1}
+    .ageTick text{font-size:var(--age-label-size);font-weight:800;fill:#294338;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .stageLabel{font-size:var(--static-label-size);font-weight:900;letter-spacing:.025em;text-transform:uppercase;fill:#0e2c20;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
+    .centerPanel circle{fill:#fff;stroke:#d7e3dc;stroke-width:1.5;filter:drop-shadow(0 12px 20px rgba(0,0,0,.09))}
+    .centerTitle{font-weight:900;fill:#073b25;font-size:22px;text-anchor:middle;letter-spacing:-.03em}
+    .centerSub{fill:#53665d;font-size:12px;text-anchor:middle}
+    .centerKpi{fill:#d31b1b;font-weight:900;font-size:15px;text-anchor:middle}
+    .legendOuter{font-size:11px;fill:#3d5148;font-weight:700}
+    .policyMarker,.policyNumber,.numberHalo{display:none}
+    .sideCard{padding:16px;position:sticky;top:16px;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;height:min(900px,calc(100vh - 32px));min-height:720px;display:grid;grid-template-rows:minmax(0,3fr) minmax(0,2fr);gap:14px;overflow:hidden}
+    .sideCard.policySelected{background:rgba(255,255,255,.95);border-color:#cfe4d8}
+    .sideCard.policySelected .detailTop{background:linear-gradient(135deg,rgba(0,106,61,.065),rgba(255,255,255,.92));border:1px solid rgba(0,106,61,.14);border-radius:22px;padding:14px;margin:-6px -6px 14px}
+    .sideCard.filterSelected{background:linear-gradient(180deg,#fffdf3 0%,#ffffff 58%);border-color:#e8c766;box-shadow:0 18px 46px rgba(217,119,6,.16)}
+    .sideCard.filterSelected .detailTop{background:linear-gradient(135deg,rgba(242,201,76,.22),rgba(255,255,255,.92));border:2px solid rgba(217,119,6,.20);border-radius:24px;padding:14px;margin:-7px -7px 15px}
+    .sideCard.stageSelected{background:linear-gradient(180deg,#e5f6ed 0%,#f5fbf7 46%,#ffffff 100%);border-color:#62ac83;box-shadow:0 20px 55px rgba(0,106,61,.22)}
+    .sideCard.stageSelected .detailTop{background:linear-gradient(135deg,rgba(0,106,61,.20),rgba(255,255,255,.90));border:2px solid rgba(0,106,61,.36);border-radius:24px;padding:14px;margin:-7px -7px 15px}
+    .detailPane,.policyPane{min-height:0;border:1.5px solid #d5e4dc;border-radius:22px;background:rgba(255,255,255,.88);padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+    .detailPane{border-color:#d7e6df;background:linear-gradient(180deg,#ffffff,#fbfdfc);overflow:hidden;display:flex;flex-direction:column}
+    .policyPane{border:2px solid #b9d7c7;background:linear-gradient(180deg,#ffffff,#f5faf7);display:flex;flex-direction:column;gap:10px;overflow:hidden}
+    .sideCard.policySelected .detailPane{background:linear-gradient(180deg,rgba(0,106,61,.045),#ffffff 58%);border-color:#c7e0d2}
+    .sideCard.filterSelected .detailPane{background:linear-gradient(180deg,rgba(242,201,76,.18),#ffffff 58%);border-color:#e9cf79}
+    .sideCard.stageSelected .detailPane{background:linear-gradient(180deg,#daf1e5 0%,#f6fcf8 55%,#ffffff 100%);border-color:#62ac83}
+    .detailTop{display:flex;gap:12px;align-items:start;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:12px;flex:0 0 auto}
+    .detailScroll{flex:1;min-height:0;overflow:auto;scrollbar-gutter:stable;padding:2px 4px 0 0}
+    .chip{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:900;border-radius:999px;padding:6px 9px;background:#e8f5ee;color:#075d35;display:inline-flex;align-items:center;gap:6px}
+    .chip::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor}
+    .detailIcon{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:#fff;font-size:24px;background:var(--green);flex:0 0 auto;box-shadow:0 8px 18px rgba(0,106,61,.20)}
+    #detailTitle{margin:0;font-size:24px;line-height:1.1;color:#073b25;letter-spacing:-.03em}
+    #detailCoverage{margin:7px 0 0;color:var(--muted);font-size:13px;font-weight:700}
+    .metaGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px}
+    .metaBox{border:1px solid var(--line);border-radius:16px;padding:10px;background:#fbfdfc}
+    .metaBox span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:900;letter-spacing:.05em;margin-bottom:4px}
+    .metaBox strong{font-size:13px;color:#10281d;line-height:1.25;display:block}
+    .detailBlock{margin-top:14px}
+    .detailBlock h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#476157}
+    .detailBlock ul{margin:0;padding:0 0 0 18px;color:#1e352a;line-height:1.42;font-size:14px}.detailBlock li{margin:6px 0}
+    .miniTitle{display:flex;align-items:center;justify-content:space-between;margin:0}.miniTitle h3{margin:0;font-size:15px;color:#0c3c28}.miniTitle small{color:var(--muted);font-weight:700}
+    .schemeList{flex:1;min-height:0;overflow:auto;padding:10px;display:grid;align-content:start;gap:8px;border:1.5px solid #d0e0d7;border-radius:18px;background:#fbfdfc;box-shadow:inset 0 1px 4px rgba(7,48,31,.045)}
+    .schemeCard{padding:10px 11px;border-radius:16px;box-shadow:none;cursor:pointer;transition:.15s ease;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+    .schemeCard:hover{transform:translateY(-1px);border-color:#8fc0a8;box-shadow:0 10px 18px rgba(0,0,0,.07)}
+    .schemeCard.active{border-color:var(--green);background:#f0fbf5;box-shadow:0 8px 18px rgba(0,106,61,.12)}
+    .swatch{width:12px;height:28px;border-radius:999px;background:#999}.schemeCard b{font-size:13px;line-height:1.15;color:#113527}.schemeCard span{font-size:11px;color:var(--muted);font-weight:700}.schemeCard em{font-style:normal;font-size:11px;color:#2d4639;background:#eef5f0;border-radius:999px;padding:5px 7px;font-weight:800}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:0;justify-content:flex-start;max-width:920px;text-align:left}.legendItem{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--line);background:#fff;border-radius:999px;color:#30483d;font-size:12px;font-weight:800;white-space:nowrap}.legendItem i{width:12px;height:12px;border-radius:50%;display:block;flex:0 0 auto}
+    .tooltip{position:fixed;z-index:10;max-width:330px;background:#0c241a;color:#fff;border-radius:16px;padding:12px 13px;font-size:13px;line-height:1.35;box-shadow:0 18px 40px rgba(0,0,0,.28);pointer-events:none;opacity:0;transform:translate(-50%,-110%);transition:opacity .12s ease}.tooltip b{display:block;font-size:15px;margin-bottom:3px}.tooltip small{color:#b8d2c5;font-weight:700}.tooltip .tipBenefits{margin-top:8px;color:#ecfff6}
+    .sourceNote{font-size:12px;color:#677a70;line-height:1.45;margin-top:14px}.sourceNote b{color:#173e2d}
+    .fundingCard{margin-top:0;border:1px solid #d9e8df;background:linear-gradient(180deg,#ffffff,#f7fbf8);border-radius:22px;padding:14px 16px;box-shadow:0 10px 26px rgba(7,48,31,.08);position:relative;z-index:4;flex:0 0 auto}
+    .fundingHeader{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:10px}
+    .fundingHeader h2{margin:0;color:#0b4f31;font-size:17px;letter-spacing:-.02em}
+    .fundingHeader p{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.35;max-width:780px}
+    .fundingTotal{font-size:12px;color:#28483a;font-weight:900;background:#e8f5ee;border:1px solid #cce3d6;border-radius:999px;padding:7px 10px;white-space:nowrap}
+    .fundingTrack{position:relative;min-height:82px;border-radius:24px;background:#edf4f0;border:1px solid #d9e6df;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.06);display:grid;grid-template-columns:minmax(0,1fr) minmax(245px,max-content);gap:14px;align-items:center;padding:13px 14px}
+    .fundingFill{position:absolute;left:0;top:0;bottom:0;width:0%;border-radius:24px;background:linear-gradient(90deg,#087143,#159957 58%,#64bd82);box-shadow:0 8px 18px rgba(0,106,61,.18);transition:width .35s ease;z-index:1}
+    .fundingPolicyLabel{position:relative;min-width:0;max-width:100%;white-space:normal;overflow:hidden;text-overflow:clip;text-align:center;font-size:13px;font-weight:1000;line-height:1.22;color:#062b1c;background:transparent;border:0;border-radius:0;padding:0 10px;box-shadow:none;z-index:2;pointer-events:none;overflow-wrap:anywhere;word-break:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-shadow:0 1px 0 rgba(255,255,255,.92),0 -1px 0 rgba(255,255,255,.92),1px 0 0 rgba(255,255,255,.92),-1px 0 0 rgba(255,255,255,.92),0 2px 5px rgba(255,255,255,.45)}
+    .fundingValue{position:relative;justify-self:end;min-width:0;font-size:13px;font-weight:1000;color:#050b08;background:#ffffff;border:1px solid #d8e4dd;border-radius:999px;padding:8px 12px;box-shadow:0 4px 12px rgba(0,0,0,.08);z-index:3;white-space:normal;pointer-events:none;max-width:100%;overflow-wrap:break-word;word-break:normal;text-align:right;line-height:1.16}
+    .fundingFoot{display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#6a7b72;font-size:11px;font-weight:800}
+    .empty{padding:12px;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:16px;background:#fbfdfc}
+    @media (max-width:1100px){
+      .grid{grid-template-columns:1fr}.sideCard{position:static;height:880px;min-height:720px}.toolbar{grid-template-columns:1fr}.tools{justify-self:stretch;min-width:0;max-width:none}.toolActions{justify-content:flex-start}.searchBox{max-width:none}.filters{max-width:none;grid-template-columns:repeat(3,minmax(120px,1fr))}#chartWrap{height:720px;min-height:680px}.chartHeader{margin:0 0 8px}.legend{justify-content:flex-start;max-width:none}.chartCard{min-height:0}
+    }
+    @media (max-width:720px){.app{padding:14px}.titleRow{align-items:flex-start}.seal{width:54px;height:54px}.seal::before{width:36px;height:36px}.seal::after{font-size:14px}.badge{display:none}.chartCard{border-radius:20px}#chartWrap{min-height:600px;height:620px}.metaGrid{grid-template-columns:1fr}.sideCard{height:900px;grid-template-rows:minmax(0,1fr) minmax(0,1fr)}.filters{grid-template-columns:repeat(2,minmax(120px,1fr))}.filterBtn{font-size:12px;padding:8px 9px}.fundingTrack{min-height:128px;border-radius:22px;grid-template-columns:1fr;gap:8px;padding:12px}.fundingFill{border-radius:22px}.fundingPolicyLabel{-webkit-line-clamp:3;font-size:12px}.fundingValue{justify-self:center;width:auto;max-width:100%;text-align:center;font-size:12px}}
+  </style>
+<link href="site-theme.css" rel="stylesheet"/></head>
+<body class="page-lifecycle" data-theme="emerald">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<nav aria-label="Main website navigation" class="site-nav">
+<a aria-label="NSIS Bangladesh home" class="site-brand" href="index.html#top">
+<span aria-hidden="true" class="site-brand-mark">BD</span>
+<span>NSIS Bangladesh</span>
+</a>
+<button aria-controls="site-menu" aria-expanded="false" class="site-nav-toggle" type="button">Menu</button>
+<div class="site-menu" id="site-menu">
+<div class="site-dropdown">
+<a class="site-menu-link" href="index.html#top">Knowledge Hub</a>
+<div aria-label="Knowledge Hub sections" class="site-submenu">
+<a href="index.html#status">Current status</a>
+<a href="index.html#standards">Standards &amp; laws</a>
+<a href="index.html#policies">Policy models</a>
+<a href="index.html#calculator">Actuarial calculator</a>
+<a href="index.html#roadmap">Roadmap</a>
+<a href="index.html#sources">Sources</a>
+<a href="index.html#definitions">Definitions</a>
+</div>
+</div>
+<div class="site-dropdown">
+<a class="site-menu-link" href="lifecycle-chart.html#overview">Lifecycle Chart</a>
+<div aria-label="Lifecycle Chart sections" class="site-submenu">
+<a href="lifecycle-chart.html#overview">Overview</a>
+<a href="lifecycle-chart.html#controls">Search &amp; filters</a>
+<a href="lifecycle-chart.html#chart-area">Lifecycle diagram</a>
+<a href="lifecycle-chart.html#stageLegend">Legends</a>
+<a href="lifecycle-chart.html#funding">Funding allocation</a>
+<a href="lifecycle-chart.html#detailCard">Details panel</a>
+<a href="lifecycle-chart.html#policy-rings">Policy rings</a>
+</div>
+</div>
+<label class="site-theme-picker" for="themeSelect">
+<span>Theme</span>
+<select aria-label="Choose website theme" id="themeSelect">
+<option value="emerald">Emerald</option>
+<option value="ocean">Ocean</option>
+<option value="midnight">Midnight</option>
+<option value="classic">Classic</option>
+</select>
+</label>
+</div>
+</nav>
+
+<div class="app" id="top">
+<header id="overview">
+<div class="titleRow">
+<div aria-hidden="true" class="seal"></div>
+<div>
+<h1>Bangladesh Social Protection Life Cycle Approach Policy Distribution</h1>
+<p class="subtitle">A custom D3 cyclic diagram: background pie = life stages; each donut ring = one policy line. Data is loaded from a separate JSON file so policy coverage can be updated without editing the main page. Policy rings load from a separate data file and are drawn as visible multi-layer donut bands over the lifecycle pie.</p>
+</div>
+</div>
+<div class="badge"><span class="dot"></span>Social Security Unit</div>
+</header>
+<section aria-label="Chart controls" class="toolbar" id="controls">
+<div class="controlStack">
+<label class="searchBox" for="searchInput"><span aria-hidden="true" class="searchIcon"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" viewbox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="M16 16l4.2 4.2"></path></svg></span><input id="searchInput" placeholder="Search policy, benefit, age, ministry, risk..." type="search"/></label>
+<div class="filters" id="filters"></div>
+</div>
+<div aria-label="Chart export and display tools" class="tools">
+<div class="toolsHeading">Chart tools</div>
+<div class="toolActions">
+<div class="widthControl" title="Adjust policy ring width">
+<span aria-hidden="true" class="volumeIcon">◉</span>
+<label for="widthSlider">Layer width</label>
+<input aria-label="Policy layer width" id="widthSlider" max="28" min="8" step="1" type="range" value="14"/>
+<output for="widthSlider" id="widthValue">14px</output>
+</div>
+<div class="widthControl" title="Resize static chart labels such as Cycle reset, Age 5, Age 18 and Age 65">
+<span aria-hidden="true" class="volumeIcon">Aa</span>
+<label for="labelFontSlider">Label font</label>
+<input aria-label="Static chart label font size" id="labelFontSlider" max="20" min="9" step="1" type="range" value="12"/>
+<output for="labelFontSlider" id="labelFontValue">12px</output>
+</div>
+<button class="toolBtn" id="resetBtn">Reset</button>
+<button class="toolBtn" id="svgBtn">Export SVG</button>
+<button class="toolBtn" id="pngBtn">Export PNG</button>
+</div>
+</div>
+</section>
+<main class="grid" id="main-content">
+<section class="chartCard" id="chart-area">
+<div class="chartHeader">
+<h2>Legends</h2>
+<div class="legend" id="stageLegend"></div>
+<p>The coloured background wedges are lifecycle stages. Concentric arcs show policy coverage. Use the Layer width and Label font controls to adjust ring thickness and static chart-label size; hover/click rings to expand them into wide bands.</p>
+</div>
+<div id="chartWrap"><svg aria-label="Interactive multilayer donut lifecycle chart" id="chart" role="img"></svg></div>
+<div aria-label="Selected funding share chart" class="fundingCard" id="funding">
+<div class="fundingHeader">
+<div>
+<h2>Selected funding allocation</h2>
+<p>Horizontal bar compares verified FY2026–27 public allocations loaded in the data file. Policies without a verified allocation are counted as zero rather than using placeholders.</p>
+</div>
+<div class="fundingTotal" id="fundingTotalLabel">Total: BDT 0</div>
+</div>
+<div class="fundingTrack" id="fundingTrack">
+<div class="fundingFill" id="fundingFill"></div>
+<div class="fundingPolicyLabel" id="fundingPolicyLabel">All policy layers</div>
+<div class="fundingValue" id="fundingValue">Percent: 100% · Value: BDT 0</div>
+</div>
+<div class="fundingFoot"><span>Selected verified allocation</span><span>Verified allocations loaded = 100%</span></div>
+</div>
+</section>
+<aside aria-label="Policy details" class="sideCard" id="detailCard">
+<section aria-label="Selected lifecycle or policy information" class="detailPane">
+<div class="detailTop">
+<div class="detailIcon" id="detailIcon">◎</div>
+<div>
+<span class="chip" id="detailChip">Lifecycle view</span>
+<h2 id="detailTitle">Hover or click a policy ring</h2>
+<p id="detailCoverage">Each ring expands to show benefits, coverage, financing and policy group.</p>
+</div>
+</div>
+<div aria-label="Scrollable detailed information" class="detailScroll">
+<div class="metaGrid">
+<div class="metaBox"><span>Age coverage</span><strong id="metaAge">Birth → death → birth</strong></div>
+<div class="metaBox"><span>Policy type</span><strong id="metaType">Tax-financed / insurance / service</strong></div>
+<div class="metaBox"><span>Primary group</span><strong id="metaGroup">Lifecycle population</strong></div>
+<div class="metaBox"><span>Lead institution</span><strong id="metaLead">Relevant ministry / authority</strong></div>
+</div>
+<div class="detailBlock">
+<h3>Benefits / functions</h3>
+<ul id="benefitList"><li>Use filters, search, hover and click to inspect the policy landscape.</li><li>Overlapping rings reveal where programmes stack over the lifecycle.</li></ul>
+</div>
+<div class="detailBlock">
+<h3>Design note</h3>
+<ul id="noteList"><li>The circular timeline is modelled from birth to death and then back to birth to represent the lifecycle approach.</li></ul>
+</div>
+</div>
+</section>
+<section aria-label="Scrollable policy ring list" class="policyPane" id="policy-rings">
+<div class="miniTitle"><h3>Policy rings</h3><small id="countLabel">0 shown</small></div>
+<div class="schemeList" id="schemeList"></div>
+<p class="sourceNote"><b>Mapping basis:</b> schemes and risk groups are mapped from the NSSS 2026–2035 lifecycle, consolidation and NSIS sections. Ages are indicative design bands for visualization, not legal eligibility rules.</p>
+</section>
+</aside>
+</main>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+(function(){
+  let stages = [];
+  let categories = {};
+  let policies = [];
+  const DATA_URL = "data/lifecycle-data.json";
+
+  const filters = [
+    {id:"all", label:"All layers", predicate: d => true},
+    {id:"tax", label:"Tax-financed", predicate: d => /Tax|Food|Shock|Education|Service|Income/.test(d.type)},
+    {id:"insurance", label:"Contributory / NSIS", predicate: d => /Contributory|Insurance|Pension/.test(d.type) || d.category === "insurance" || d.id === "ups"},
+    {id:"women", label:"Women-focused", predicate: d => d.category === "women" || /Women|Maternity|girls|Widow/.test(d.name + " " + d.group)},
+    {id:"worker", label:"Worker-focused", predicate: d => ["worker","insurance"].includes(d.category) || /worker|employment|migrant|workfare/i.test(d.name + " " + d.group)},
+    {id:"allages", label:"Whole life", predicate: d => d.start === 0 && d.end === 90},
+    {id:"shock", label:"Shock / special", predicate: d => ["shock","special"].includes(d.category)}
+  ];
+
+  if (typeof d3 === "undefined") {
+    document.getElementById("chartWrap").innerHTML = '<div class="empty">D3.js could not load. Check that <code>vendor/d3/d3.min.js</code> exists.</div>';
+    return;
+  }
+
+  async function loadData(){
+    // Prefer the separate JS data adapter so the chart also works when the HTML file
+    // is opened directly. If it is not present, fall back to the JSON file.
+    let data = window.LIFECYCLE_DATA || null;
+    if(!data){
+      data = await d3.json(DATA_URL);
+    }
+    if(!data || !Array.isArray(data.stages) || !data.categories || !Array.isArray(data.policies)){
+      throw new Error("Invalid lifecycle data format");
+    }
+    stages = data.stages;
+    categories = data.categories;
+    policies = data.policies;
+  }
+
+  function showDataError(error){
+    console.error(error);
+    d3.select("#chartWrap").html('<div class="empty"><b>Data file could not be loaded.</b><br/>Check that <code>data/lifecycle-data.js</code> and <code>data/lifecycle-data.json</code> exist. If editing the JSON only, run through a local web server: <code>python3 -m http.server 8000</code>.</div>');
+  }
+
+  let currentFilter = "all";
+  let searchTerm = "";
+  let activePolicy = null;
+  let activeStage = null;
+  let pinned = false;
+
+  const svg = d3.select("#chart");
+  const tooltip = d3.select("#tooltip");
+  const center = {x: 630, y: 630};
+  const width = 1260, height = 1260;
+  const totalAge = 90;
+  const startOffset = 0; // D3 arc angle 0 is 12 o’clock; keep labels/guides in the same coordinate system.
+  const stageInner = 100;
+  const stageOuter = 470;
+  const ringStart = 170;
+  const ringStep = 14.5;
+  let baseThickness = 14;
+  let hoverThickness = 44;
+  let stageFocusThickness = 28;
+  let staticLabelSize = 12;
+
+  svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+  const defs = svg.append("defs");
+  defs.append("filter").attr("id","softGlow").html('<feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>');
+
+  // Transparent click layer behind the chart. Clicking empty/white chart space
+  // restores the default all-layers view without disturbing ring/stage clicks.
+  const resetLayer = svg.append("rect")
+    .attr("class","resetLayer")
+    .attr("x",0).attr("y",0)
+    .attr("width",width).attr("height",height)
+    .on("click", event => { event.stopPropagation(); resetToDefaultView(); });
+
+  const root = svg.append("g").attr("transform",`translate(${center.x},${center.y})`);
+  const gBackground = root.append("g").attr("class","backgroundPie");
+  const gGuides = root.append("g").attr("class","guides");
+  const gPolicies = root.append("g").attr("class","policies");
+  const gTicks = root.append("g").attr("class","ticks");
+  const gCenter = root.append("g").attr("class","centerPanel");
+
+  const ageToAngle = age => startOffset + (age / totalAge) * Math.PI * 2;
+  const angleToPoint = (angle, r) => [Math.sin(angle) * r, -Math.cos(angle) * r];
+  const formatAge = d => d === 0 ? "Birth" : d === 88 ? "Death" : d === 90 ? "Birth" : String(d);
+  const coverageLabel = d => {
+    if (d.start === 0 && d.end === 90) return "Whole life: birth → death → birth";
+    if (d.start === 65 && d.end >= 88) return "Age 65 → death";
+    return `${formatAge(d.start)} → ${formatAge(d.end)}`;
+  };
+  const overlaps = (a,b) => a.start < b.end && a.end > b.start;
+  const activeStagesForPolicy = p => stages.filter(s => overlaps(p,s)).map(s => s.id);
+
+  function preparePolicies(){
+    policies.forEach((p,i)=>{
+      p.r = ringStart + i * ringStep;
+      p.layer = i + 1;
+      const cat = categories[p.category] || categories.poverty || { color: "#006a3d", label: "Policy", icon: "◆" };
+      p.color = cat.color;
+    });
+  }
+
+  const stageArc = d3.arc()
+    .innerRadius(stageInner)
+    .outerRadius(stageOuter)
+    .startAngle(d => ageToAngle(d.start))
+    .endAngle(d => ageToAngle(d.end))
+    .padAngle(.008)
+    .cornerRadius(4);
+
+  function policyArcFactory(thickness){
+    return d3.arc()
+      .innerRadius(d => Math.max(30, d.r - thickness/2))
+      .outerRadius(d => d.r + thickness/2)
+      .startAngle(d => ageToAngle(d.start))
+      .endAngle(d => ageToAngle(d.end))
+      .padAngle(d => (d.end - d.start) >= 89 ? 0 : .006)
+      .cornerRadius(thickness/2);
+  }
+
+  let arcThin = policyArcFactory(baseThickness);
+  let arcWide = policyArcFactory(hoverThickness);
+  let arcStageFocus = policyArcFactory(stageFocusThickness);
+
+  function updateArcGenerators(){
+    hoverThickness = Math.min(64, baseThickness + 30);
+    stageFocusThickness = Math.min(46, baseThickness + 14);
+    arcThin = policyArcFactory(baseThickness);
+    arcWide = policyArcFactory(hoverThickness);
+    arcStageFocus = policyArcFactory(stageFocusThickness);
+  }
+
+  function init(){
+    preparePolicies();
+    renderStageLegend();
+    renderFilters();
+    drawStatic();
+    render();
+    bindControls();
+    d3.select("#widthValue").text(`${baseThickness}px`);
+    applyStaticLabelSize(staticLabelSize);
+    updateDetail(null);
+  }
+
+  function renderStageLegend(){
+    const legend = d3.select("#stageLegend");
+    legend.selectAll(".legendItem").data(stages).join("div")
+      .attr("class","legendItem")
+      .html(d=>`<i style="background:${d.color}"></i>${d.label}`);
+  }
+
+  function renderFilters(){
+    d3.select("#filters").selectAll("button").data(filters).join("button")
+      .attr("class",d=>`filterBtn ${d.id===currentFilter?"active":""}`)
+      .attr("type","button")
+      .text(d=>d.label)
+      .on("click",(event,d)=>{
+        currentFilter = d.id;
+        d3.selectAll(".filterBtn").classed("active", f=>f.id===currentFilter);
+        activePolicy = null; activeStage = null;
+        render();
+        if(currentFilter === "all" && !searchTerm.trim()){
+          pinned = false;
+          clearVisualFocus();
+          updateDetail(null);
+        } else {
+          pinned = true;
+          focusFilterSelection();
+        }
+      });
+  }
+
+  function drawStatic(){
+    gBackground.selectAll("path.stageArc").data(stages).join("path")
+      .attr("class","stageArc")
+      .attr("id",d=>`stage-${d.id}`)
+      .attr("d",stageArc)
+      .attr("fill",d=>d.color)
+      .attr("opacity",.18)
+      .on("mouseenter",(event,d)=>{ if(!pinned) focusStage(d); showStageTooltip(event,d); })
+      .on("mousemove",moveTooltip)
+      .on("mouseleave",()=>{ if(!pinned) clearFocus(); hideTooltip(); })
+      .on("click",(event,d)=>{ event.stopPropagation(); pinned = true; focusStage(d); });
+
+    // subtle ring guides
+    gGuides.selectAll("circle.ringGuide").data(policies).join("circle")
+      .attr("class","ringGuide")
+      .attr("r",d=>d.r);
+
+    // age boundary radial lines and labels. Birth/death boundary lines are intentionally
+    // hidden because the lifecycle cycle is represented by the pie wedges themselves.
+    const ageTicks = [5,18,65];
+    gGuides.selectAll("line.ageLine").data(ageTicks).join("line")
+      .attr("class","ageLine")
+      .attr("x1",d=>angleToPoint(ageToAngle(d), stageInner-15)[0])
+      .attr("y1",d=>angleToPoint(ageToAngle(d), stageInner-15)[1])
+      .attr("x2",d=>angleToPoint(ageToAngle(d), stageOuter+16)[0])
+      .attr("y2",d=>angleToPoint(ageToAngle(d), stageOuter+16)[1]);
+
+    const tick = gTicks.selectAll("g.ageTick").data(ageTicks).join("g")
+      .attr("class","ageTick")
+      .attr("transform",d=>`translate(${angleToPoint(ageToAngle(d), stageOuter+34)[0]},${angleToPoint(ageToAngle(d), stageOuter+34)[1]})`);
+    tick.append("text").attr("text-anchor",d=>{
+      const x = Math.sin(ageToAngle(d)); return Math.abs(x)<.2?"middle":(x>0?"start":"end");
+    }).attr("dy",".35em").text(d=>`Age ${d}`);
+
+    gTicks.selectAll("text.stageLabel").data(stages).join("text")
+      .attr("class","stageLabel")
+      .attr("x",d=>angleToPoint(ageToAngle((d.start+d.end)/2), stageOuter+54)[0])
+      .attr("y",d=>angleToPoint(ageToAngle((d.start+d.end)/2), stageOuter+54)[1])
+      .attr("text-anchor",d=>{ const x = Math.sin(ageToAngle((d.start+d.end)/2)); return Math.abs(x)<.2?"middle":(x>0?"start":"end"); })
+      .attr("dominant-baseline","middle")
+      .text(d=>d.title);
+
+    // Birth/death radial marker lines removed by request.
+
+    gCenter.append("circle").attr("r",92);
+    gCenter.append("text").attr("class","centerTitle").attr("y",-18).text("Lifecycle");
+    gCenter.append("text").attr("class","centerSub").attr("y",5).text("birth → work → old age");
+    gCenter.append("text").attr("class","centerKpi").attr("id","centerKpi").attr("y",32).text("25 policy layers");
+  }
+
+  function filteredPolicies(){
+    const filter = filters.find(f=>f.id===currentFilter) || filters[0];
+    const term = searchTerm.trim().toLowerCase();
+    return policies.filter(d => filter.predicate(d)).filter(d => {
+      if(!term) return true;
+      return [d.name, d.type, d.group, d.lead, d.category, d.note, ...d.benefits].join(" ").toLowerCase().includes(term);
+    });
+  }
+
+  function render(){
+    // The chart always keeps all policy rings in the SVG. Top buttons/search
+    // act as selections by expanding matching rings and dimming others, rather
+    // than removing nonmatching rings from the donut.
+    const selected = filteredPolicies();
+    const paths = gPolicies.selectAll("path.policyArc").data(policies, d=>d.id);
+    paths.join(
+      enter => enter.append("path")
+        .attr("class","policyArc")
+        .attr("d",arcThin)
+        .attr("fill",d=>d.color)
+        .attr("opacity",.94)
+        .attr("data-id",d=>d.id)
+        .on("mouseenter",(event,d)=>{ if(!pinned) focusPolicy(d); showPolicyTooltip(event,d); })
+        .on("mousemove",moveTooltip)
+        .on("mouseleave",()=>{ if(!pinned) clearFocus(); hideTooltip(); })
+        .on("click",(event,d)=>{ event.stopPropagation(); pinned=true; focusPolicy(d); }),
+      update => update.attr("fill",d=>d.color),
+      exit => exit.transition().duration(250).attr("opacity",0).remove()
+    ).transition().duration(500).attr("d",arcThin).attr("opacity",.94);
+
+    // Policy layer numbers on the chart are intentionally hidden.
+
+    renderList(selected);
+    const isSelection = currentFilter !== "all" || searchTerm.trim();
+    d3.select("#countLabel").text(isSelection ? `${selected.length} selected` : `${selected.length} shown`);
+    d3.select("#centerKpi").text(isSelection ? `${selected.length} selected` : `${selected.length} policy layers`);
+    updateFundingForCurrentView();
+  }
+
+  function renderList(data){
+    const list = d3.select("#schemeList");
+    if(!data.length){
+      list.html('<div class="empty">No policy rings match the current filter/search.</div>');
+      return;
+    }
+    const cards = list.selectAll("div.schemeCard").data(data, d=>d.id);
+    const enter = cards.enter().append("div").attr("class","schemeCard");
+    enter.append("i").attr("class","swatch");
+    const body = enter.append("div");
+    body.append("b");
+    body.append("span");
+    enter.append("em");
+    cards.merge(enter)
+      .classed("active", d=>activePolicy && d.id===activePolicy.id)
+      .on("mouseenter",(event,d)=>{ if(!pinned) focusPolicy(d); showPolicyTooltip(event,d); })
+      .on("mousemove",moveTooltip)
+      .on("mouseleave",()=>{ if(!pinned) clearFocus(); hideTooltip(); })
+      .on("click",(event,d)=>{ pinned=true; focusPolicy(d); })
+      .select(".swatch").style("background",d=>d.color);
+    cards.merge(enter).select("b").text(d=>`${d.layer}. ${d.name}`);
+    cards.merge(enter).select("span").text(d=>`${categories[d.category].label} · ${coverageLabel(d)}`);
+    cards.merge(enter).select("em").text(d=>d.start===0&&d.end===90?"full":`${d.start}-${d.end}`);
+    cards.exit().remove();
+  }
+
+  function focusPolicy(d){
+    activePolicy = d; activeStage = null;
+    const ids = new Set(activeStagesForPolicy(d));
+    gPolicies.selectAll("path.policyArc")
+      .classed("active", p=>p.id===d.id)
+      .classed("dim", p=>p.id!==d.id)
+      .transition().duration(180)
+      .attr("d", p=>p.id===d.id ? arcWide(p) : arcThin(p))
+      .attr("opacity", p=>p.id===d.id ? 1 : .13);
+    gBackground.selectAll("path.stageArc")
+      .classed("active", s=>ids.has(s.id))
+      .classed("dim", s=>!ids.has(s.id))
+      .attr("opacity", s=>ids.has(s.id) ? .34 : .08);
+    d3.selectAll(".schemeCard").classed("active",p=>p.id===d.id);
+    updateDetail(d);
+  }
+
+  function focusStage(s){
+    activeStage = s; activePolicy = null;
+    gPolicies.selectAll("path.policyArc")
+      .classed("active", p=>overlaps(p,s))
+      .classed("dim", p=>!overlaps(p,s))
+      .transition().duration(180)
+      .attr("d", p=>overlaps(p,s) ? arcStageFocus(p) : arcThin(p))
+      .attr("opacity", p=>overlaps(p,s) ? .95 : .08);
+    gBackground.selectAll("path.stageArc")
+      .classed("active", d=>d.id===s.id)
+      .classed("dim", d=>d.id!==s.id)
+      .attr("opacity", d=>d.id===s.id ? .42 : .08);
+    d3.selectAll(".schemeCard").classed("active",false);
+    updateStageDetail(s);
+  }
+
+  function focusFilterSelection(){
+    const selected = filteredPolicies();
+    const selectedIds = new Set(selected.map(p=>p.id));
+    const stageIds = new Set();
+    selected.forEach(p => activeStagesForPolicy(p).forEach(id => stageIds.add(id)));
+
+    gPolicies.selectAll("path.policyArc")
+      .classed("active", p=>selectedIds.has(p.id))
+      .classed("dim", p=>!selectedIds.has(p.id))
+      .transition().duration(200)
+      .attr("d", p=>selectedIds.has(p.id) ? arcStageFocus(p) : arcThin(p))
+      .attr("opacity", p=>selectedIds.has(p.id) ? .97 : .08);
+
+    gBackground.selectAll("path.stageArc")
+      .classed("active", s=>stageIds.has(s.id))
+      .classed("dim", s=>!stageIds.has(s.id))
+      .attr("opacity", s=>stageIds.has(s.id) ? .34 : .08);
+
+    d3.selectAll(".schemeCard").classed("active", p=>selectedIds.has(p.id));
+    updateFilterDetail(selected);
+  }
+
+  function clearVisualFocus(){
+    gPolicies.selectAll("path.policyArc")
+      .classed("active",false).classed("dim",false)
+      .transition().duration(200).attr("d",arcThin).attr("opacity",.94);
+    gBackground.selectAll("path.stageArc")
+      .classed("active",false).classed("dim",false).attr("opacity",.18);
+    d3.selectAll(".schemeCard").classed("active",false);
+  }
+
+  function clearFocus(){
+    activePolicy = null; activeStage = null;
+    clearVisualFocus();
+    updateDetail(null);
+  }
+
+  function resetToDefaultView(){
+    currentFilter = "all";
+    searchTerm = "";
+    pinned = false;
+    activePolicy = null;
+    activeStage = null;
+    baseThickness = 14;
+    updateArcGenerators();
+    d3.select("#searchInput").property("value","");
+    d3.select("#widthSlider").property("value",baseThickness);
+    d3.select("#widthValue").text(`${baseThickness}px`);
+    d3.select("#labelFontSlider").property("value",12);
+    applyStaticLabelSize(12);
+    renderFilters();
+    render();
+    clearVisualFocus();
+    updateDetail(null);
+    hideTooltip();
+  }
+
+  function setDetailMode(mode){
+    d3.select("#detailCard")
+      .classed("stageSelected", mode === "stage")
+      .classed("policySelected", mode === "policy")
+      .classed("filterSelected", mode === "filter");
+  }
+
+  function updateDetail(d){
+    if(!d){
+      setDetailMode("default");
+      d3.select("#detailIcon").text("◎").style("background","var(--green)");
+      d3.select("#detailChip").text("Lifecycle view").style("color","#075d35").style("background","#e8f5ee");
+      d3.select("#detailTitle").text("Hover or click a policy ring");
+      d3.select("#detailCoverage").text("Each ring expands to show benefits, coverage, financing and policy group.");
+      d3.select("#metaAge").text("Birth → death → birth");
+      d3.select("#metaType").text("Tax-financed / insurance / service");
+      d3.select("#metaGroup").text("Lifecycle population");
+      d3.select("#metaLead").text("Relevant ministry / authority");
+      d3.select("#benefitList").html("<li>Use filters, search, hover and click to inspect the policy landscape.</li><li>Overlapping rings reveal where programmes stack over the lifecycle.</li>");
+      d3.select("#noteList").html("<li>The circular timeline is modelled from birth to death and then back to birth to represent the lifecycle approach.</li>");
+      updateFundingForCurrentView();
+      return;
+    }
+    setDetailMode("policy");
+    const cat = categories[d.category];
+    d3.select("#detailIcon").text(cat.icon).style("background",cat.color);
+    d3.select("#detailChip").text(cat.label).style("color",cat.color).style("background",hexToRgba(cat.color,.12));
+    d3.select("#detailTitle").text(d.name);
+    d3.select("#detailCoverage").text(`Layer ${d.layer} · ${coverageLabel(d)}`);
+    d3.select("#metaAge").text(coverageLabel(d));
+    d3.select("#metaType").text(d.type);
+    d3.select("#metaGroup").text(d.group);
+    d3.select("#metaLead").text(d.lead);
+    d3.select("#benefitList").html(d.benefits.map(x=>`<li>${escapeHtml(x)}</li>`).join(""));
+    const fundingText = d.fundingNote ? `<li><b>Funding basis:</b> ${escapeHtml(d.fundingNote)}</li>` : "";
+    const sourceText = d.sourceUrl ? `<li><a class="detailSource" href="${escapeHtml(d.sourceUrl)}" target="_blank" rel="noopener">${escapeHtml(d.sourceLabel || "Primary source")}</a></li>` : "";
+    d3.select("#noteList").html(`<li>${escapeHtml(d.note)}</li>${fundingText}<li>Overlaps lifecycle stages: ${activeStagesForPolicy(d).map(id=>stages.find(s=>s.id===id).title).join(", ")}.</li>${sourceText}`);
+    updateFundingBar([d], d.name);
+  }
+
+  function updateStageDetail(s){
+    setDetailMode("stage");
+    const matching = filteredPolicies().filter(p=>overlaps(p,s));
+    d3.select("#detailIcon").text("◔").style("background",s.color);
+    d3.select("#detailChip").text("Lifecycle stage").style("color",s.color).style("background",hexToRgba(s.color,.12));
+    d3.select("#detailTitle").text(`${s.title} (${s.label})`);
+    d3.select("#detailCoverage").text(`${matching.length} policy rings overlap this stage.`);
+    d3.select("#metaAge").text(`${formatAge(s.start)} → ${formatAge(s.end)}`);
+    d3.select("#metaType").text("Background pie segment");
+    d3.select("#metaGroup").text(s.detail);
+    d3.select("#metaLead").text("Multiple ministries / programmes");
+    d3.select("#benefitList").html(matching.slice(0,9).map(p=>`<li><b>${escapeHtml(p.name)}</b>: ${escapeHtml(p.benefits[0])}</li>`).join("") || "<li>No visible policies in current filter.</li>");
+    d3.select("#noteList").html("<li>Click a specific ring to see its full benefit package.</li><li>Use filters to isolate insurance, women-focused, worker-focused or whole-life policies.</li>");
+    updateFundingBar(matching, matching.map(p=>p.name).join(", ") || "No selected policies");
+  }
+
+  function updateFilterDetail(selected){
+    const visible = Array.isArray(selected) ? selected : [];
+    const filter = filters.find(f=>f.id===currentFilter) || filters[0];
+    const titleParts = [];
+    if(filter.id !== "all") titleParts.push(filter.label);
+    if(searchTerm.trim()) titleParts.push(`Search: “${searchTerm.trim()}”`);
+    const title = titleParts.length ? titleParts.join(" + ") : "All policy layers";
+    const categoryNames = Array.from(new Set(visible.map(p => categories[p.category]?.label || p.category))).join(", ") || "No visible category";
+    const stageNames = Array.from(new Set(visible.flatMap(p => activeStagesForPolicy(p).map(id => stages.find(s=>s.id===id)?.title).filter(Boolean)))).join(", ") || "No lifecycle stage";
+    const leads = Array.from(new Set(visible.map(p => p.lead))).slice(0,3).join("; ") || "Multiple ministries / programmes";
+
+    setDetailMode("filter");
+    d3.select("#detailIcon").text("◉").style("background","#d97706");
+    d3.select("#detailChip").text("Top-button selection").style("color","#9a4f00").style("background","rgba(242,201,76,.22)");
+    d3.select("#detailTitle").text(title);
+    d3.select("#detailCoverage").text(`${visible.length} matching policy ring${visible.length === 1 ? "" : "s"} selected on the donut chart.`);
+    d3.select("#metaAge").text(stageNames);
+    d3.select("#metaType").text(categoryNames);
+    d3.select("#metaGroup").text(filter.id === "all" ? "Visible policy set" : filter.label);
+    d3.select("#metaLead").text(leads);
+    d3.select("#benefitList").html(visible.slice(0,10).map(p=>`<li><b>${escapeHtml(p.name)}</b>: ${escapeHtml(p.benefits[0] || "Policy coverage shown in ring")}</li>`).join("") || "<li>No policy rings match the current filter/search.</li>");
+    d3.select("#noteList").html("<li>The selected top-button group is now reflected in both the funding bar and the donut rings.</li><li>Click an individual policy ring for detailed policy information, or click empty white chart space to reset to All layers.</li>");
+    updateFundingBar(visible, selectedPoliciesLabel(visible, title));
+  }
+
+  function showPolicyTooltip(event,d){
+    tooltip.html(`<b>${escapeHtml(d.name)}</b><small>${categories[d.category].label} · ${coverageLabel(d)}</small><div class="tipBenefits">${escapeHtml(d.benefits[0])}</div>`).style("opacity",1);
+    moveTooltip(event);
+  }
+  function showStageTooltip(event,d){
+    tooltip.html(`<b>${escapeHtml(d.title)} (${d.label})</b><small>Background lifecycle pie segment</small><div class="tipBenefits">${escapeHtml(d.detail)}</div>`).style("opacity",1);
+    moveTooltip(event);
+  }
+  function moveTooltip(event){
+    tooltip.style("left",`${event.clientX}px`).style("top",`${event.clientY - 12}px`);
+  }
+  function hideTooltip(){ tooltip.style("opacity",0); }
+
+  function applyLayerWidth(newWidth){
+    baseThickness = Number(newWidth) || 14;
+    updateArcGenerators();
+    d3.select("#widthValue").text(`${baseThickness}px`);
+
+    if(activePolicy){
+      gPolicies.selectAll("path.policyArc")
+        .transition().duration(180)
+        .attr("d", p=>p.id===activePolicy.id ? arcWide(p) : arcThin(p));
+    } else if(activeStage){
+      gPolicies.selectAll("path.policyArc")
+        .transition().duration(180)
+        .attr("d", p=>overlaps(p,activeStage) ? arcStageFocus(p) : arcThin(p));
+    } else if(currentFilter !== "all" || searchTerm.trim()){
+      const selectedIds = new Set(filteredPolicies().map(p=>p.id));
+      gPolicies.selectAll("path.policyArc")
+        .transition().duration(180)
+        .attr("d", p=>selectedIds.has(p.id) ? arcStageFocus(p) : arcThin(p));
+    } else {
+      gPolicies.selectAll("path.policyArc")
+        .transition().duration(180)
+        .attr("d", arcThin);
+    }
+  }
+
+  function applyStaticLabelSize(newSize){
+    staticLabelSize = Number(newSize) || 12;
+    const ageLabelSize = Math.max(9, staticLabelSize - 1);
+    document.documentElement.style.setProperty("--static-label-size", `${staticLabelSize}px`);
+    document.documentElement.style.setProperty("--age-label-size", `${ageLabelSize}px`);
+    d3.select("#labelFontValue").text(`${staticLabelSize}px`);
+  }
+
+  function bindControls(){
+    d3.select("#searchInput").on("input",function(){
+      searchTerm = this.value;
+      activePolicy=null; activeStage=null;
+      render();
+      if(currentFilter === "all" && !searchTerm.trim()){
+        pinned=false;
+        clearVisualFocus();
+        updateDetail(null);
+      } else {
+        pinned=true;
+        focusFilterSelection();
+      }
+    });
+    d3.select("#widthSlider").on("input",function(){ applyLayerWidth(this.value); });
+    d3.select("#labelFontSlider").on("input",function(){ applyStaticLabelSize(this.value); });
+    d3.select("#resetBtn").on("click",resetToDefaultView);
+    d3.select("#svgBtn").on("click",downloadSVG);
+    d3.select("#pngBtn").on("click",downloadPNG);
+    d3.select(window).on("keydown",(event)=>{ if(event.key==="Escape"){ pinned=false; clearFocus(); hideTooltip(); } });
+  }
+
+  function totalFunding(){
+    return policies.reduce((sum,p)=>sum + (Number(p.fundingBdt) || 0), 0);
+  }
+
+  function formatBDT(value){
+    const v = Number(value) || 0;
+    if(v >= 1000000000000) return `BDT ${(v/1000000000000).toFixed(2)}T`;
+    if(v >= 1000000000) return `BDT ${(v/1000000000).toFixed(1)}B`;
+    if(v >= 10000000) return `BDT ${(v/10000000).toFixed(1)} crore`;
+    return `BDT ${Math.round(v).toLocaleString()}`;
+  }
+
+  function selectedPoliciesLabel(selected, fallback){
+    const names = (selected || []).map(p=>p.name).filter(Boolean);
+    if(names.length === 0) return fallback || "No selected policies";
+    if(names.length === policies.length) return "All policy layers";
+    return names.join(", ");
+  }
+
+  function updateFundingForCurrentView(){
+    if(activePolicy){
+      updateFundingBar([activePolicy], activePolicy.name);
+      return;
+    }
+    if(activeStage){
+      const stagePolicies = filteredPolicies().filter(p=>overlaps(p,activeStage));
+      updateFundingBar(stagePolicies, selectedPoliciesLabel(stagePolicies, `${activeStage.title}: no selected policies`));
+      return;
+    }
+    const shown = filteredPolicies();
+    updateFundingBar(shown, selectedPoliciesLabel(shown, "No visible policy layers"));
+  }
+
+  function updateFundingBar(selectedPolicies, label){
+    const selected = Array.isArray(selectedPolicies) ? selectedPolicies : [];
+    const total = totalFunding();
+    const amount = selected.reduce((sum,p)=>sum + (Number(p.fundingBdt) || 0), 0);
+    const pct = total > 0 ? Math.min(100, (amount / total) * 100) : 0;
+    const pctText = `${pct.toFixed(pct >= 10 || pct === 0 ? 1 : 2)}%`;
+    const safeLabel = label || selected.map(p=>p.name).join(", ") || "No selected policies";
+    d3.select("#fundingTotalLabel").text(`Verified total: ${formatBDT(total)}`);
+    d3.select("#fundingFill").style("width", `${pct}%`);
+    d3.select("#fundingPolicyLabel").text(safeLabel).attr("title", safeLabel);
+    d3.select("#fundingValue")
+      .text(`Percent: ${pctText} · Value: ${formatBDT(amount)}`)
+      .attr("title", `Percent: ${pctText}; Value: ${formatBDT(amount)} of total funding`);
+  }
+
+  function downloadSVG(){
+    const cloned = svg.node().cloneNode(true);
+    const style = document.createElement("style");
+    style.textContent = Array.from(document.styleSheets).map(s=>{try{return Array.from(s.cssRules).map(r=>r.cssText).join("\n")}catch(e){return ""}}).join("\n");
+    cloned.insertBefore(style, cloned.firstChild);
+    cloned.setAttribute("xmlns","http://www.w3.org/2000/svg");
+    const text = new XMLSerializer().serializeToString(cloned);
+    const blob = new Blob([text], {type:"image/svg+xml;charset=utf-8"});
+    downloadBlob(blob, "bangladesh-nsss-nsis-lifecycle-donut.svg");
+  }
+
+  function downloadPNG(){
+    const cloned = svg.node().cloneNode(true);
+    const style = document.createElement("style");
+    style.textContent = 'text{font-family:Arial,"Noto Sans",sans-serif}.stageArc{stroke:#fff}.policyArc{stroke:none}';
+    cloned.insertBefore(style, cloned.firstChild);
+    cloned.setAttribute("xmlns","http://www.w3.org/2000/svg");
+    const svgText = new XMLSerializer().serializeToString(cloned);
+    const url = URL.createObjectURL(new Blob([svgText], {type:"image/svg+xml;charset=utf-8"}));
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement("canvas");
+      canvas.width = 1800; canvas.height = 1800;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(blob=>downloadBlob(blob,"bangladesh-nsss-nsis-lifecycle-donut.png"),"image/png");
+    };
+    img.src = url;
+  }
+
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+  function hexToRgba(hex, alpha){
+    const h = hex.replace("#",""); const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  loadData().then(init).catch(showDataError);
+})();
+</script>
+<script src="site-menu.js"></script></body>
+</html>

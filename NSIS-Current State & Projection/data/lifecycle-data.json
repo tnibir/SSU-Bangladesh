@@ -1,0 +1,576 @@
+{
+  "stages": [
+    {
+      "id": "early",
+      "label": "Birth–5",
+      "title": "Early age",
+      "start": 0,
+      "end": 5,
+      "color": "#2e9f67",
+      "detail": "Pregnancy, newborn and early childhood support."
+    },
+    {
+      "id": "school",
+      "label": "5–18",
+      "title": "School age",
+      "start": 5,
+      "end": 18,
+      "color": "#2f80ed",
+      "detail": "Education, nutrition and adolescent support."
+    },
+    {
+      "id": "working",
+      "label": "18–65",
+      "title": "Working age",
+      "start": 18,
+      "end": 65,
+      "color": "#f2994a",
+      "detail": "Labour-market, livelihood and social insurance protection."
+    },
+    {
+      "id": "old",
+      "label": "65–death",
+      "title": "Old age",
+      "start": 65,
+      "end": 88,
+      "color": "#9b51e0",
+      "detail": "Elderly income security, pension, care and disability inclusion."
+    },
+    {
+      "id": "reset",
+      "label": "Death→birth",
+      "title": "Cycle reset",
+      "start": 88,
+      "end": 90,
+      "color": "#d31b1b",
+      "detail": "A small transition wedge showing death, renewal and birth."
+    }
+  ],
+  "categories": {
+    "poverty": {
+      "label": "Poverty / household",
+      "color": "#006a3d",
+      "icon": "◆"
+    },
+    "women": {
+      "label": "Women / gender",
+      "color": "#c0265a",
+      "icon": "♀"
+    },
+    "child": {
+      "label": "Child / education",
+      "color": "#1b72b9",
+      "icon": "✦"
+    },
+    "worker": {
+      "label": "Worker protection",
+      "color": "#d97706",
+      "icon": "⚙"
+    },
+    "insurance": {
+      "label": "Social insurance",
+      "color": "#7c3aed",
+      "icon": "◉"
+    },
+    "oldage": {
+      "label": "Old-age / pension",
+      "color": "#6d4c41",
+      "icon": "◌"
+    },
+    "disability": {
+      "label": "Disability inclusion",
+      "color": "#008c8c",
+      "icon": "♿"
+    },
+    "shock": {
+      "label": "Shock / covariate",
+      "color": "#455a64",
+      "icon": "⚡"
+    },
+    "special": {
+      "label": "Special / migrant",
+      "color": "#8d6e63",
+      "icon": "★"
+    }
+  },
+  "policies": [
+    {
+      "id": "family-card",
+      "name": "Family Card",
+      "category": "poverty",
+      "type": "Tax-financed household transfer",
+      "start": 0,
+      "end": 90,
+      "group": "Poor and vulnerable households",
+      "lead": "Ministry of Social Welfare / DSS",
+      "benefits": [
+        "Tk 2,500 monthly cash support for poor and vulnerable households",
+        "FY2026–27 target: 41 lakh households; card generally issued in the female head’s or mother’s name",
+        "Household-level entry point for lifecycle, livelihood and shock-response services"
+      ],
+      "note": "Shown as a full lifecycle ring because it protects households rather than one narrow age group.",
+      "fundingBdt": 145000000000,
+      "fundingNote": "FY2026–27 public budget allocation: Tk 14,500 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=68",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "women-girls",
+      "name": "Women and girls lifecycle protection",
+      "category": "women",
+      "type": "Cross-cutting policy layer",
+      "start": 0,
+      "end": 90,
+      "group": "Women and girls across the life cycle",
+      "lead": "MoWCA with MoSW, MoLE and local government",
+      "benefits": [
+        "Female household member as primary Family Card recipient",
+        "Girls’ education, safe learning environment and dropout prevention",
+        "Maternity, childcare, vulnerable women and widow-related protection"
+      ],
+      "note": "This is the women-focused whole-circle layer requested by the user.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "disability",
+      "name": "Disability Allowance and Education Stipend Programme",
+      "category": "disability",
+      "type": "Tax-financed benefit + services",
+      "start": 0,
+      "end": 90,
+      "group": "Persons with disabilities at all ages",
+      "lead": "Ministry of Social Welfare / DSS",
+      "benefits": [
+        "Allowance: Tk 1,000 monthly",
+        "Education stipends: Tk 1,000 primary, Tk 1,100 secondary, Tk 1,200 higher secondary and Tk 1,400 higher level",
+        "FY2026–27 target: 39 lakh beneficiaries"
+      ],
+      "note": "Disability is cross-cutting and therefore spans the full lifecycle.",
+      "fundingBdt": 47154500000,
+      "fundingNote": "FY2026–27 public budget allocation: Tk 4,715.45 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=71",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "mcbp",
+      "name": "Mother and Child Benefit Programme",
+      "category": "women",
+      "type": "Tax-financed lifecycle transfer",
+      "start": 0,
+      "end": 4,
+      "group": "Pregnant mothers and young children",
+      "lead": "Ministry of Women and Children Affairs",
+      "benefits": [
+        "Tk 850 monthly cash support; paid quarterly",
+        "FY2026–27 target: 18.95 lakh beneficiaries",
+        "Nutrition, antenatal/postnatal care and behaviour-change linkages"
+      ],
+      "note": "Official FY2026–27 programme figures; shown in the early-childhood wedge.",
+      "fundingBdt": 19682000000,
+      "fundingNote": "FY2026–27 public budget allocation: Tk 1,968.20 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=79",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "early-services",
+      "name": "Early childhood care linkages",
+      "category": "child",
+      "type": "Service linkage",
+      "start": 0,
+      "end": 5,
+      "group": "Children under five and caregivers",
+      "lead": "Health, local government and social welfare services",
+      "benefits": [
+        "Birth registration and referral to health and nutrition services",
+        "Parenting, early learning and childcare linkages",
+        "Protection of children without adequate family care"
+      ],
+      "note": "A service layer supporting the MCBP rather than a single cash scheme.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "primary-stipend",
+      "name": "Primary School Stipend",
+      "category": "child",
+      "type": "Tax-financed education support",
+      "start": 5,
+      "end": 11,
+      "group": "Primary school children",
+      "lead": "Ministry of Primary and Mass Education",
+      "benefits": [
+        "Support for school enrolment and attendance",
+        "Universal coverage for students in government primary schools",
+        "Complements school meals in poor and food-insecure areas"
+      ],
+      "note": "Age range is indicative for primary-school age.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "harmonized-stipend",
+      "name": "Harmonized Secondary/Higher Stipend",
+      "category": "child",
+      "type": "Education transfer",
+      "start": 11,
+      "end": 18,
+      "group": "Secondary and higher secondary students",
+      "lead": "Ministry of Education",
+      "benefits": [
+        "Supports attendance and completion",
+        "Priority for poor households, girls, children with disabilities and hard-to-reach areas",
+        "Can include fee waivers and dropout prevention measures"
+      ],
+      "note": "Age range is indicative; actual education eligibility may vary.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "school-meals",
+      "name": "School Meal Programme",
+      "category": "child",
+      "type": "Food/nutrition support",
+      "start": 5,
+      "end": 12,
+      "group": "Government primary school children",
+      "lead": "Ministry of Primary and Mass Education",
+      "benefits": [
+        "Nutrition support through school meals",
+        "Initial focus on poverty-prone and food-insecure areas",
+        "Supports attendance, learning readiness and food security"
+      ],
+      "note": "Shown as an early school-age layer.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "workfare",
+      "name": "Employment Generation Programme for the Poorest (EGPP)",
+      "category": "worker",
+      "type": "Tax-financed workfare",
+      "start": 18,
+      "end": 65,
+      "group": "Poor working-age people",
+      "lead": "Ministry of Disaster Management and Relief",
+      "benefits": [
+        "Daily wage: Tk 500; Tk 550 for a Sardar",
+        "Two annual work cycles of 40 days each; weekly payment",
+        "FY2026–27 target: 3.70 lakh beneficiaries"
+      ],
+      "note": "Official EGPP figures are used; this is tax-financed workfare, not unemployment insurance.",
+      "fundingBdt": 16328400000,
+      "fundingNote": "FY2026–27 EGPP public budget allocation: Tk 1,632.84 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=85",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "uwpp",
+      "name": "Unemployed Workers’ Protection Programme",
+      "category": "worker",
+      "type": "Tax-financed unemployment assistance",
+      "start": 18,
+      "end": 65,
+      "group": "Unemployed or vulnerable workers",
+      "lead": "Ministry of Labour and Employment",
+      "benefits": [
+        "Non-contributory support distinct from unemployment insurance",
+        "Temporary assistance for unemployed workers",
+        "Can bridge workers not yet covered by contributory NSIS"
+      ],
+      "note": "This is assistance, not a contributory insurance branch.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "nsis",
+      "name": "National Social Insurance Scheme (NSIS)",
+      "category": "insurance",
+      "type": "Contributory social insurance",
+      "start": 18,
+      "end": 65,
+      "group": "Formal workers first; gradual extension",
+      "lead": "MoLE Social Security Unit / future authority",
+      "benefits": [
+        "Integrated protection for employment injury, maternity, sickness and unemployment",
+        "Branch-wise funds, contributions, claims administration and grievance redress",
+        "Designed to begin in formal sector and expand administratively"
+      ],
+      "note": "NSIS is not yet fully rolled out; no approved aggregate contribution or benefit amount is loaded.",
+      "fundingBdt": 0,
+      "fundingNote": "NSIS is not yet fully rolled out; no verified aggregate FY2026–27 public allocation or approved contribution schedule is loaded.",
+      "sourceUrl": "https://socialprotection.gov.bd/wp-content/uploads/2025/04/Report-on-19-20-Feb-2025_Workshop-on-National-Social-Insurance-Scheme-NSIS_Final.pdf",
+      "sourceLabel": "2025 NSIS stocktaking workshop report"
+    },
+    {
+      "id": "eis",
+      "name": "Employment Injury Insurance / EIS",
+      "category": "insurance",
+      "type": "Contributory worker insurance",
+      "start": 18,
+      "end": 65,
+      "group": "Workers in covered sectors",
+      "lead": "MoLE / future EIS authority",
+      "benefits": [
+        "Pilot covers about 4 million export-oriented RMG workers for permanent disability and survivor pensions",
+        "Disability benchmark: at least 60% of former wage × disability degree; survivor benchmark: at least 50% of former wage",
+        "Voluntary brand financing: 0.019% of annual RMG export value; no statutory payroll premium yet"
+      ],
+      "note": "Operational pilot; monthly pension top-ups depend on age and last wage. No single verified public-budget allocation is loaded.",
+      "fundingBdt": 0,
+      "fundingNote": "The pilot is financed through voluntary brand contributions of 0.019% of annual RMG export value; no single verified FY2026–27 public-budget allocation is loaded.",
+      "sourceUrl": "https://eis-pilot-bd.org/the-eis-pilot",
+      "sourceLabel": "Official EIS Pilot portal"
+    },
+    {
+      "id": "maternity-insurance",
+      "name": "Maternity Insurance",
+      "category": "insurance",
+      "type": "Contributory social insurance",
+      "start": 18,
+      "end": 49,
+      "group": "Women workers",
+      "lead": "MoLE with MoWCA and health services",
+      "benefits": [
+        "Proposed pooled income replacement during maternity-related absence",
+        "Current Labour Act benefit is employer-liability, wage-linked and allows up to 120 days",
+        "No approved NSIS premium rate or pooled benefit amount"
+      ],
+      "note": "Proposed NSIS branch; not yet launched as a pooled national contributory scheme.",
+      "fundingBdt": 0,
+      "fundingNote": "No approved national NSIS premium, pooled benefit amount or separate verified FY2026–27 allocation is loaded.",
+      "sourceUrl": "https://bdlaws.minlaw.gov.bd/act-952/chapter-details-1034.html",
+      "sourceLabel": "Bangladesh Labour Act maternity-benefit chapter"
+    },
+    {
+      "id": "sickness",
+      "name": "Sickness Insurance",
+      "category": "insurance",
+      "type": "Contributory social insurance",
+      "start": 18,
+      "end": 65,
+      "group": "Workers temporarily unable to work due to illness",
+      "lead": "MoLE / future NSIS authority",
+      "benefits": [
+        "Proposed cash income replacement during certified temporary incapacity",
+        "Waiting periods, medical certification and coordination with sick leave remain to be designed",
+        "No approved national contribution rate or cash-benefit amount"
+      ],
+      "note": "Identified as an NSIS branch; not yet launched as a national contributory scheme.",
+      "fundingBdt": 0,
+      "fundingNote": "No approved national contribution rate, cash-benefit amount or separate verified FY2026–27 allocation is loaded.",
+      "sourceUrl": "https://socialprotection.gov.bd/wp-content/uploads/2025/04/Report-on-19-20-Feb-2025_Workshop-on-National-Social-Insurance-Scheme-NSIS_Final.pdf",
+      "sourceLabel": "2025 NSIS stocktaking workshop report"
+    },
+    {
+      "id": "unemployment-insurance",
+      "name": "Unemployment Insurance",
+      "category": "insurance",
+      "type": "Contributory social insurance",
+      "start": 18,
+      "end": 65,
+      "group": "Formal-sector workers first",
+      "lead": "MoLE and employment services",
+      "benefits": [
+        "Proposed temporary income replacement for involuntary unemployment",
+        "Would require contribution records, job-search conditions, training and placement services",
+        "No approved national contribution rate, replacement rate or duration"
+      ],
+      "note": "Identified as an NSIS branch; not yet launched. Separate from tax-financed EGPP/workfare.",
+      "fundingBdt": 0,
+      "fundingNote": "No approved national contribution rate, benefit schedule or separate verified FY2026–27 allocation is loaded.",
+      "sourceUrl": "https://socialprotection.gov.bd/wp-content/uploads/2025/04/Report-on-19-20-Feb-2025_Workshop-on-National-Social-Insurance-Scheme-NSIS_Final.pdf",
+      "sourceLabel": "2025 NSIS stocktaking workshop report"
+    },
+    {
+      "id": "vwb",
+      "name": "Vulnerable Women Benefit",
+      "category": "women",
+      "type": "Food transfer + economic inclusion",
+      "start": 18,
+      "end": 64,
+      "group": "Poor and vulnerable women",
+      "lead": "Ministry of Women and Children Affairs",
+      "benefits": [
+        "30 kg rice per month for vulnerable women",
+        "FY2026–27 target: 10.40 lakh beneficiaries",
+        "Livelihood, skills and economic-inclusion support"
+      ],
+      "note": "Working-age women-focused layer.",
+      "fundingBdt": 22977000000,
+      "fundingNote": "FY2026–27 public budget allocation: Tk 2,297.70 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=80",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "widow",
+      "name": "Widow Allowance",
+      "category": "women",
+      "type": "Tax-financed categorical allowance",
+      "start": 18,
+      "end": 88,
+      "group": "Widowed, deserted and destitute women",
+      "lead": "Ministry of Social Welfare / DSS",
+      "benefits": [
+        "Tk 700 monthly cash support; paid quarterly",
+        "FY2026–27 target: 30 lakh beneficiaries",
+        "For widowed, husband-deserted and distressed women meeting programme criteria"
+      ],
+      "note": "Official FY2026–27 programme figures; starts in adulthood and continues into old age.",
+      "fundingBdt": 25351200000,
+      "fundingNote": "FY2026–27 public budget allocation: Tk 2,535.12 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=70",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "ups",
+      "name": "Universal Pension Scheme",
+      "category": "oldage",
+      "type": "Contributory pension",
+      "start": 18,
+      "end": 88,
+      "group": "Contributors, informal workers, migrants and retirees",
+      "lead": "National Pension Authority / Ministry of Finance",
+      "benefits": [
+        "Probash monthly contributions: Tk 2,000 / 5,000 / 7,500 / 10,000",
+        "Progoti: Tk 2,000 / 3,000 / 5,000 / 10,000; Surakkha: Tk 1,000 / 2,000 / 3,000 / 5,000",
+        "Samata: Tk 1,000 monthly, split Tk 500 subscriber + Tk 500 government"
+      ],
+      "note": "Operational voluntary contributory pension. The loaded public allocation is only the FY2026–27 Samata Scheme budget, not the total UPS corpus.",
+      "fundingBdt": 100000000,
+      "fundingNote": "FY2026–27 public budget allocation for the National Pension Authority (Samata Scheme): Tk 10 crore. This excludes subscriber contributions and the wider pension corpus.",
+      "sourceUrl": "https://www.upension.gov.bd/Public/PensionBriefEn",
+      "sourceLabel": "National Pension Authority UPS brief"
+    },
+    {
+      "id": "old-age-allowance",
+      "name": "Old Age Allowance",
+      "category": "oldage",
+      "type": "Tax-financed old-age benefit",
+      "start": 65,
+      "end": 88,
+      "group": "Poor and vulnerable older persons",
+      "lead": "Ministry of Social Welfare / DSS",
+      "benefits": [
+        "Tk 700 monthly cash support; paid quarterly",
+        "FY2026–27 target: 62 lakh beneficiaries",
+        "Priority for poor, landless and vulnerable older persons"
+      ],
+      "note": "Shown from age 65 to death in the visual model.",
+      "fundingBdt": 52392500000,
+      "fundingNote": "FY2026–27 public budget allocation: Tk 5,239.25 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=69",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "govt-pension",
+      "name": "Pension for Retired Government Employees",
+      "category": "oldage",
+      "type": "Employment-based pension",
+      "start": 60,
+      "end": 88,
+      "group": "Retired public servants and families",
+      "lead": "Ministry of Finance and relevant public bodies",
+      "benefits": [
+        "Retirement income security for former public servants",
+        "Survivor/family pension where applicable",
+        "Continues as a separate employment-based pension pillar"
+      ],
+      "note": "Shown from indicative retirement age.",
+      "fundingBdt": 353794000000,
+      "fundingNote": "FY2026–27 Pension Management public allocation: Tk 35,379.40 crore.",
+      "sourceUrl": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-mof/2026/5/4d4de077-26a7-4f8f-aad1-7b3f48043897.pdf#page=123",
+      "sourceLabel": "Finance Division FY2026–27 report"
+    },
+    {
+      "id": "humanitarian",
+      "name": "Consolidated Humanitarian Assistance",
+      "category": "shock",
+      "type": "Shock-responsive support",
+      "start": 0,
+      "end": 90,
+      "group": "Shock-affected households",
+      "lead": "Ministry of Disaster Management and Relief",
+      "benefits": [
+        "Food, cash, shelter and livelihood recovery after disasters",
+        "Can scale vertically or horizontally during shocks",
+        "Linked to dynamic registry and early-warning triggers"
+      ],
+      "note": "Shock risks can affect all ages; therefore it spans the whole circle.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "food-support",
+      "name": "Consolidated Food Support Programme",
+      "category": "shock",
+      "type": "Food-price and food-security support",
+      "start": 0,
+      "end": 90,
+      "group": "Food-insecure and poor households",
+      "lead": "Ministry of Food / Ministry of Commerce",
+      "benefits": [
+        "Harmonized food-support instruments",
+        "Supports poor households during food-price shocks",
+        "Can link with Family Card for better targeting"
+      ],
+      "note": "A whole-life covariate risk layer.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "migrant",
+      "name": "Migrant Worker Protection and Reintegration",
+      "category": "special",
+      "type": "Special worker protection",
+      "start": 18,
+      "end": 65,
+      "group": "Migrant workers and returnees",
+      "lead": "MoEWOE, WEWB, BMET and missions abroad",
+      "benefits": [
+        "Pre-departure finance, orientation, contract verification and skills support",
+        "Overseas assistance, wage recovery, legal aid and repatriation",
+        "Returnee reintegration, entrepreneurship and psychosocial support"
+      ],
+      "note": "Working-age ring for migration cycle protection.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "special-support",
+      "name": "Freedom Fighters and July Martyrs/Injured Support",
+      "category": "special",
+      "type": "Special state obligation",
+      "start": 0,
+      "end": 90,
+      "group": "Eligible special-support groups and families",
+      "lead": "Relevant line ministries",
+      "benefits": [
+        "Cash assistance and harmonized support for eligible groups",
+        "Medical treatment, rehabilitation and education/livelihood support where relevant",
+        "Beneficiary verification and unified programme management"
+      ],
+      "note": "Special support is not age-specific; shown across the life course.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    },
+    {
+      "id": "farmer-card",
+      "name": "Farmer’s Card",
+      "category": "worker",
+      "type": "Productive risk protection",
+      "start": 18,
+      "end": 65,
+      "group": "Agricultural households and small producers",
+      "lead": "Agriculture, fisheries, livestock and finance institutions",
+      "benefits": [
+        "Access to subsidised inputs, concessional credit and crop insurance",
+        "Can extend to fish farmers, livestock rearers and agro-entrepreneurs",
+        "Links productive support with risk protection"
+      ],
+      "note": "Included as a worker/livelihood risk layer from the reform text.",
+      "fundingBdt": 0,
+      "fundingNote": "No verified FY2026–27 public allocation is loaded for this policy layer."
+    }
+  ]
+}
