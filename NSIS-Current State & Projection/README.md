@@ -23,3 +23,7 @@ Open `index.html` in a browser to start. For the D3 chart, keep the `data/` fold
 - Marked maternity, sickness and unemployment insurance as unlaunched where no approved amount exists.
 - Removed illustrative lifecycle funding placeholders; only verified public allocations are now charted.
 - Updated tab accessibility and removed obsolete navigation code.
+
+## GitHub Pages compatibility
+
+The site uses only relative asset paths, a local D3 7.9.0 distribution, and a cross-platform system-font stack. Run the root-level `npm test` command before publishing changes.

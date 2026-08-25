@@ -1,0 +1,263 @@
+\section{The Four Policy Calculations}
+
+\subsection{Employment Injury Insurance}
+
+\policybox{Policy description}{
+The webpage describes a national employment injury scheme intended to replace fragmented employer liability with a no-fault, employer-financed, risk-pooled arrangement. The policy scope includes medical care, temporary incapacity, permanent disability, survivors' pensions, rehabilitation, and return-to-work support. In the calculator, these diverse liabilities are compressed into one average cost per claim measured in months of average wage.
+}
+
+Let:
+
+\begin{itemize}
+  \item $e$ = annual injury claim rate as a proportion of covered workers;
+  \item $m_E$ = average benefit cost in months of average wage.
+\end{itemize}
+
+Expected injury claims are:
+
+\begin{equation}
+Q_{E,t}=N_te.
+\end{equation}
+
+The average cost per claim is:
+
+\begin{equation}
+\bar{b}_{E,t}=W_tm_E.
+\end{equation}
+
+The base annual employment injury cost is:
+
+\begin{equation}
+B_{E,t}=Q_{E,t}W_tm_E.
+\end{equation}
+
+After the common margin:
+
+\begin{equation}
+F_{E,t}=Q_{E,t}W_tm_E(1+a).
+\end{equation}
+
+Contribution income is:
+
+\begin{equation}
+C_{E,t}=c_EP_t.
+\end{equation}
+
+\begin{interpretation}
+The parameter $m_E$ is not the duration of one specific payment. It is an aggregate severity measure: the model assumes that the average full cost of one injury claim is equivalent to $m_E$ months of the average wage. A larger value can represent more severe injuries, longer payment duration, pensions, medical costs, rehabilitation, or a combination of these, but the model does not separate those components.
+\end{interpretation}
+
+\subsubsection*{Default first-year illustration}
+Using the website defaults $N_0=1{,}000{,}000$, $W_0=\Tk\,15{,}000$, $e=0.12\%=0.0012$, $m_E=48$, and $a=15\%$:
+
+\begin{align}
+Q_{E,0} &= 1{,}000{,}000\times0.0012=1{,}200,\\
+B_{E,0} &=1{,}200\times15{,}000\times48=\Tk\,864{,}000{,}000,\\
+F_{E,0} &=864{,}000{,}000\times1.15=\Tk\,993{,}600{,}000.
+\end{align}
+
+\subsection{Maternity Benefit Insurance}
+
+\policybox{Policy description}{
+The webpage describes a pooled maternity insurance branch intended to protect women workers while spreading maternity cost across covered female-worker payroll. The calculator estimates the number of maternity claims from the female share of workers and a birth/claim rate among female workers. It then calculates wage replacement for a selected number of leave weeks.
+}
+
+Let:
+
+\begin{itemize}
+  \item $f$ = female share of covered workers;
+  \item $b$ = annual maternity claim rate among covered female workers;
+  \item $L$ = paid maternity leave duration in weeks;
+  \item $r_M$ = wage-replacement proportion during leave.
+\end{itemize}
+
+The female worker exposure is $N_tf$. Expected maternity claims are:
+
+\begin{equation}
+Q_{M,t}=N_tfb.
+\end{equation}
+
+The code converts weeks to months using $4.345$ weeks per month:
+
+\begin{equation}
+D_M=\frac{L}{4.345}.
+\end{equation}
+
+The benefit cost per claim is:
+
+\begin{equation}
+\bar{b}_{M,t}=W_t\left(\frac{L}{4.345}\right)r_M.
+\end{equation}
+
+The base annual maternity cost is:
+
+\begin{equation}
+B_{M,t}=Q_{M,t}W_t\left(\frac{L}{4.345}\right)r_M.
+\end{equation}
+
+After the common margin:
+
+\begin{equation}
+F_{M,t}=Q_{M,t}W_t\left(\frac{L}{4.345}\right)r_M(1+a).
+\end{equation}
+
+The executable calculation uses female-worker payroll for contribution income. Define:
+
+\begin{equation}
+K_{M,t}=12N_tfW_t=fP_t,
+\qquad
+C_{M,t}=c_MK_{M,t}.
+\end{equation}
+
+\begin{importantnote}
+The current calculator labels the maternity input ``Premium, \% female-worker payroll.'' The JavaScript applies the rate to $12N_tfW_t$, so male workers are not included in this maternity contribution base. The required maternity rate uses the same female-worker payroll denominator.
+\end{importantnote}
+
+\begin{interpretation}
+This model separates the claim frequency from the wage-replacement design. The number of claims depends on $N_tfb$, while the cost of each claim depends on wage, leave duration, and replacement rate. It does not separately include medical benefits, antenatal or postnatal service costs, multiple births, eligibility rules, or variation in individual wages.
+\end{interpretation}
+
+\subsubsection*{Default first-year illustration}
+Using $N_0=1{,}000{,}000$, $f=45\%$, $b=5.5\%$, $W_0=\Tk\,15{,}000$, $L=17.14$ weeks, $r_M=100\%$, and $a=15\%$:
+
+\begin{align}
+Q_{M,0} &=1{,}000{,}000\times0.45\times0.055=24{,}750,\\
+B_{M,0} &=24{,}750\times15{,}000\times\frac{17.14}{4.345}\times1.00\\
+&\approx\Tk\,1{,}464{,}493{,}671,\\
+F_{M,0} &\approx1{,}464{,}493{,}671\times1.15\\
+&\approx\Tk\,1{,}684{,}167{,}722.
+\end{align}
+
+\subsection{Unemployment Insurance and Employment Services}
+
+\policybox{Policy description}{
+The webpage describes temporary income protection linked to job search, training, case management, and re-employment. The calculator therefore combines a wage-replacement cash benefit with a fixed employment-service cost per approved claim.
+}
+
+Let:
+
+\begin{itemize}
+  \item $u$ = annual unemployment claim rate as a proportion of covered workers;
+  \item $d_U$ = number of months of cash benefit;
+  \item $r_U$ = wage-replacement proportion;
+  \item $S_U$ = employment-service cost per claim in Taka.
+\end{itemize}
+
+Expected unemployment claims are:
+
+\begin{equation}
+Q_{U,t}=N_tu.
+\end{equation}
+
+The cash benefit per claim is:
+
+\begin{equation}
+\bar{b}^{\mathrm{cash}}_{U,t}=W_td_Ur_U.
+\end{equation}
+
+The total modeled cost per claim is:
+
+\begin{equation}
+\bar{b}_{U,t}=W_td_Ur_U+S_U.
+\end{equation}
+
+The base annual unemployment cost is:
+
+\begin{equation}
+B_{U,t}=Q_{U,t}\left(W_td_Ur_U+S_U\right).
+\end{equation}
+
+After the common margin:
+
+\begin{equation}
+F_{U,t}=Q_{U,t}\left(W_td_Ur_U+S_U\right)(1+a).
+\end{equation}
+
+Contribution income is based on total covered payroll:
+
+\begin{equation}
+C_{U,t}=c_UK_{U,t}=c_UP_t.
+\end{equation}
+
+\begin{interpretation}
+The fixed service cost $S_U$ grows with the number of claims but does not grow automatically with wages. By contrast, the cash-benefit component grows with $W_t$. The administrative margin is applied to both the cash benefit and the service cost because both are included in the base cost before loading.
+\end{interpretation}
+
+\subsubsection*{Default first-year illustration}
+Using $N_0=1{,}000{,}000$, $u=3.5\%$, $W_0=\Tk\,15{,}000$, $d_U=4$, $r_U=50\%$, $S_U=\Tk\,8{,}000$, and $a=15\%$:
+
+\begin{align}
+Q_{U,0} &=1{,}000{,}000\times0.035=35{,}000,\\
+\bar{b}_{U,0} &=15{,}000\times4\times0.50+8{,}000=\Tk\,38{,}000,\\
+B_{U,0} &=35{,}000\times38{,}000=\Tk\,1{,}330{,}000{,}000,\\
+F_{U,0} &=1{,}330{,}000{,}000\times1.15=\Tk\,1{,}529{,}500{,}000.
+\end{align}
+
+\subsection{Old-Age Social Insurance}
+
+\policybox{Policy description}{
+The webpage describes a contributory old-age pillar that complements tax-financed old-age assistance. In the calculator, annual pension expenditure is approximated from the number of retirees relative to active workers and a pension replacement rate applied to the average annual wage.
+}
+
+Let:
+
+\begin{itemize}
+  \item $\rho$ = retiree-to-active-worker ratio;
+  \item $r_P$ = pension replacement proportion of average wage.
+\end{itemize}
+
+The number of pensioners supported is approximated as:
+
+\begin{equation}
+Q_{P,t}=N_t\rho.
+\end{equation}
+
+The annual pension per retiree is:
+
+\begin{equation}
+\bar{b}_{P,t}=12W_tr_P.
+\end{equation}
+
+The base annual pension cost is:
+
+\begin{equation}
+B_{P,t}=Q_{P,t}\,12W_tr_P.
+\end{equation}
+
+After the common margin:
+
+\begin{equation}
+F_{P,t}=Q_{P,t}\,12W_tr_P(1+a).
+\end{equation}
+
+Contribution income is based on total covered payroll:
+
+\begin{equation}
+C_{P,t}=c_PK_{P,t}=c_PP_t.
+\end{equation}
+
+Because $Q_{P,t}=N_t\rho$ and $P_t=12N_tW_t$, the base pension cost can be simplified to:
+
+\begin{equation}
+B_{P,t}=P_t\rho r_P.
+\end{equation}
+
+Therefore, with constant $\rho$, $r_P$, and $a$, the loaded annual pension-cost rate is:
+
+\begin{equation}
+\frac{F_{P,t}}{P_t}=\rho r_P(1+a).
+\end{equation}
+
+\begin{interpretation}
+This is an aggregate pay-as-you-go-style expenditure approximation. It is not an individual-account accumulation model and does not calculate the present value of accrued pension rights. It has no retirement-age distribution, mortality table, contribution history, vesting period, survivor pension, indexation rule, or life expectancy assumption.
+\end{interpretation}
+
+\subsubsection*{Default first-year illustration}
+Using $N_0=1{,}000{,}000$, $\rho=6\%$, $W_0=\Tk\,15{,}000$, $r_P=25\%$, and $a=15\%$:
+
+\begin{align}
+Q_{P,0} &=1{,}000{,}000\times0.06=60{,}000,\\
+\bar{b}_{P,0} &=12\times15{,}000\times0.25=\Tk\,45{,}000,\\
+B_{P,0} &=60{,}000\times45{,}000=\Tk\,2{,}700{,}000{,}000,\\
+F_{P,0} &=2{,}700{,}000{,}000\times1.15=\Tk\,3{,}105{,}000{,}000.
+\end{align}

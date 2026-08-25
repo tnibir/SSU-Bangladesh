@@ -1,0 +1,101 @@
+\section{Meaning of the Calculator Outputs}
+
+\subsection{Claim rate}
+
+The displayed claim rate is the user-entered policy parameter:
+
+\begin{itemize}
+  \item EIS: injury claims per covered worker;
+  \item maternity: claims per covered female worker;
+  \item unemployment: unemployment claims per covered worker;
+  \item old age: retirees per active covered worker.
+\end{itemize}
+
+For maternity, the displayed birth/claim rate is not the claim rate for all workers. Total claims are calculated only after multiplying by the female share.
+
+\subsection{Final-year claims}
+
+This is $Q_{j,T-1}$: the expected claims or beneficiaries in the last projection year after worker growth has been applied.
+
+\subsection{Final-year cost}
+
+This is $F_{j,T-1}$: the last year's base benefit cost multiplied by $(1+a)$.
+
+\subsection{Required premium rate}
+
+This is $r_j^{\ast}$, the upward-rounded level rate on the applicable contribution base that, when applied to projected contribution bases, balances the future value of projected costs at the end of the selected horizon. Maternity uses female-worker payroll; the other three branches use total covered payroll.
+
+\subsection{User-set contribution rate}
+
+This is $c_j$, the rate entered in the webpage. The calculator compares it with $r_j^{\ast}$ and marks the policy as underfunded when:
+
+\begin{equation}
+c_j<r_j^{\ast}.
+\end{equation}
+
+\subsection{Accumulated amount}
+
+This is the closing reserve $A_{j,t}$. A negative value means projected costs and prior deficits exceed contributions and investment earnings under the selected assumptions. A positive value means an accumulated surplus remains.
+
+\section{What Is and Is Not Actuarially Modelled}
+
+\subsection{What the model does capture}
+
+\begin{itemize}
+  \item exposure growth through covered workers;
+  \item wage-linked payroll and benefit components, plus the fixed nominal unemployment service-cost component;
+  \item policy-specific claim frequency or beneficiary ratios;
+  \item policy-specific benefit severity or replacement parameters;
+  \item an administrative/contingency loading;
+  \item contribution income;
+  \item annual reserve accumulation with investment return; and
+  \item a horizon-based required level premium rate.
+\end{itemize}
+
+\subsection{Main simplifications}
+
+The webpage itself describes the calculator as simplified. Mathematically, the following elements are not represented:
+
+\begin{itemize}
+  \item stochastic variation or confidence intervals;
+  \item age, sex, wage-band, occupation, sector, or service-duration distributions;
+  \item changing claim rates over time;
+  \item mortality, morbidity, disability severity, recovery, or remarriage assumptions;
+  \item waiting periods, eligibility conditions, contribution-density requirements, or repeat claims;
+  \item benefit caps, floors, indexation, survivor proportions, or commutation factors;
+  \item separate medical, rehabilitation, administration, and cash-benefit cost streams;
+  \item initial reserves or legacy liabilities;
+  \item separate investment timing for contributions and benefit payments;
+  \item inflation distinct from wage growth; and
+  \item policy interaction, covariance, or cross-subsidy among the four branches.
+\end{itemize}
+
+\begin{titledbox}{Correct interpretation}{NSISGreen}{NSISLight}
+The website is best understood as a transparent policy-scenario calculator. It answers: ``Given these assumed claim rates, benefit designs, payroll growth, loading, contribution rates, and investment return, what annual costs and reserve path result?'' It does not by itself establish that the assumptions are statistically credible or that the resulting rate is adequate for a permanent national scheme.
+\end{titledbox}
+
+\section{Compact Formula Summary}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.24\textwidth} p{0.68\textwidth}}
+\toprule
+\textbf{Component} & \textbf{Formula} \\
+\midrule
+Workers & $N_t=N_0(1+g_N)^t$ \\
+Wage & $W_t=W_0(1+g_W)^t$ \\
+Payroll & $P_t=12N_tW_t$ \\
+Contribution base & $K_{j,t}=P_t$ for $j\in\{E,U,P\}$; $K_{M,t}=12N_tfW_t=fP_t$ \\
+EIS claims & $Q_{E,t}=N_te$ \\
+EIS base cost & $B_{E,t}=Q_{E,t}W_tm_E$ \\
+Maternity claims & $Q_{M,t}=N_tfb$ \\
+Maternity base cost & $B_{M,t}=Q_{M,t}W_t(L/4.345)r_M$ \\
+Unemployment claims & $Q_{U,t}=N_tu$ \\
+Unemployment base cost & $B_{U,t}=Q_{U,t}(W_td_Ur_U+S_U)$ \\
+Pensioners & $Q_{P,t}=N_t\rho$ \\
+Old-age base cost & $B_{P,t}=Q_{P,t}W_t12r_P$ \\
+Loaded final cost & $F_{j,t}=B_{j,t}(1+a)$ \\
+Contribution income & $C_{j,t}=c_jK_{j,t}$ \\
+Reserve recurrence & $A_{j,t}=A_{j,t-1}(1+i)+C_{j,t}-F_{j,t}$ \\
+Raw required rate & $\widetilde r_j^{\ast}=\dfrac{\sum_tF_{j,t}(1+i)^{T-1-t}}{\sum_tK_{j,t}(1+i)^{T-1-t}}$ \\
+Displayed required rate & $r_j^{\ast}=\lceil10{,}000\widetilde r_j^{\ast}\rceil/10{,}000$ \\
+\bottomrule
+\end{longtable}

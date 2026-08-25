@@ -1,0 +1,51 @@
+\section{What the Calculator Is}
+
+The webpage implements a \textbf{deterministic, aggregate scenario-costing model}. For each policy branch, it projects:
+
+\begin{itemize}
+  \item the number of covered workers and their average wage;
+  \item the expected number of claims or beneficiaries;
+  \item the annual benefit cost, including an administrative margin;
+  \item contribution income as a percentage of payroll;
+  \item the accumulated reserve after investment return, contributions, and costs; and
+  \item a level required premium rate that produces a non-negative terminal reserve over the selected projection horizon.
+\end{itemize}
+
+The four policy branches are:
+
+\begin{enumerate}
+  \item Employment Injury Insurance;
+  \item Maternity Benefit Insurance;
+  \item Unemployment Insurance with employment-service cost; and
+  \item Old-Age Social Insurance.
+\end{enumerate}
+
+\begin{titledbox}{How to read the model}{NSISGreen}{NSISLight}
+The calculator does not estimate probabilities from data. The user supplies the claim rates, benefit parameters, growth rates, contribution rates, administrative margin, and fund return. The model then applies those assumptions consistently over time.
+\end{titledbox}
+
+\subsection{Core notation}
+
+Let $t=0,1,\ldots,T-1$ denote projection years, where $t=0$ is the selected start year.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.16\textwidth} p{0.76\textwidth}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$N_t$ & Number of covered workers in year $t$. \\
+$W_t$ & Average monthly wage per covered worker in year $t$. \\
+$P_t$ & Annual covered payroll in year $t$. \\
+$K_{j,t}$ & Contribution base for policy $j$ in year $t$. It equals $P_t$ for EIS, unemployment, and old-age insurance, and equals female-worker payroll for maternity insurance. \\
+$g_N$ & Annual covered-worker growth rate. \\
+$g_W$ & Annual wage-growth rate. \\
+$i$ & Annual fund return applied to the opening reserve. \\
+$a$ & Administrative, contingency, and reserve margin applied to base cost. \\
+$Q_{j,t}$ & Expected number of claims or beneficiaries for policy $j$ in year $t$. \\
+$B_{j,t}$ & Base benefit cost before the administrative margin. \\
+$F_{j,t}$ & Final annual cost after the administrative margin. \\
+$c_j$ & User-entered contribution or premium rate for policy $j$. \\
+$C_{j,t}$ & Contribution income for policy $j$ in year $t$. \\
+$A_{j,t}$ & Accumulated reserve balance for policy $j$ at the end of year $t$. \\
+$r_j^{\ast}$ & Required level premium rate calculated over the projection horizon. \\
+\bottomrule
+\end{longtable}

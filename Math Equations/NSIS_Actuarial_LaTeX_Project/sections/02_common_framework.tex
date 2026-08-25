@@ -1,0 +1,135 @@
+\section{Common Projection Framework}
+
+All four policies use the same annual population, wage, payroll, loading, contribution, reserve, and premium-rate framework.
+
+\subsection{Covered workers}
+
+The covered worker population grows geometrically:
+
+\begin{equation}
+N_t=N_0(1+g_N)^t.
+\end{equation}
+
+Thus, each future year's claim exposure changes with the assumed growth or decline of the covered workforce.
+
+\subsection{Average monthly wage}
+
+The average monthly wage also grows geometrically:
+
+\begin{equation}
+W_t=W_0(1+g_W)^t.
+\end{equation}
+
+Wage growth increases payroll and the wage-linked benefit components. The unemployment service-cost component is different: its fixed per-claim amount does not automatically increase with $W_t$.
+
+\subsection{Annual covered payroll}
+
+The model converts monthly average wages into annual payroll:
+
+\begin{equation}
+P_t=12N_tW_t.
+\end{equation}
+
+For three branches, this total payroll is also the contribution base. Maternity uses female-worker payroll as its contribution base. Define the policy-specific base as:
+
+\begin{equation}
+K_{j,t}=\begin{cases}
+P_t, & j\in\{E,U,P\},\\
+12N_tfW_t=fP_t, & j=M.
+\end{cases}
+\end{equation}
+
+\subsection{Final annual policy cost}
+
+Each policy first calculates a base benefit cost $B_{j,t}$. The common administrative margin is then applied:
+
+\begin{equation}
+F_{j,t}=B_{j,t}(1+a).
+\end{equation}
+
+For example, if $a=15\%$, a base cost of $\Tk\,100$ becomes:
+
+\begin{equation}
+\Tk\,100\times(1+0.15)=\Tk\,115.
+\end{equation}
+
+\subsection{Contribution income}
+
+For policy $j$, the user enters a contribution rate $c_j$ applied to that policy's contribution base. Annual contribution income is:
+
+\begin{equation}
+C_{j,t}=c_jK_{j,t}.
+\end{equation}
+
+The contribution rate is held constant across all projection years unless the user changes the input and recalculates.
+
+\subsection{Accumulated reserve}
+
+The calculator starts each policy with no initial reserve:
+
+\begin{equation}
+A_{j,-1}=0.
+\end{equation}
+
+The annual reserve recurrence is:
+
+\begin{equation}
+A_{j,t}=A_{j,t-1}(1+i)+C_{j,t}-F_{j,t}.
+\end{equation}
+
+This ordering means:
+
+\begin{enumerate}
+  \item the previous year's closing reserve earns the fund return $i$;
+  \item current-year contributions are added; and
+  \item current-year costs are deducted.
+\end{enumerate}
+
+Current-year contributions do not earn a partial-year return in the formula. Similarly, current-year costs are not discounted within the year.
+
+Expanding the recurrence gives the terminal reserve:
+
+\begin{equation}
+A_{j,T-1}=\sum_{t=0}^{T-1}\left(C_{j,t}-F_{j,t}\right)(1+i)^{T-1-t}.
+\end{equation}
+
+\subsection{Cumulative cost and contributions}
+
+The projection function calculates simple nominal cumulative totals:
+
+\begin{align}
+\operatorname{CumCost}_{j,t} &= \sum_{s=0}^{t}F_{j,s},\\
+\operatorname{CumContribution}_{j,t} &= \sum_{s=0}^{t}C_{j,s}.
+\end{align}
+
+The current interface displays cumulative cost; the cumulative contribution total is also calculated and retained in the projection rows but is not currently displayed. Neither cumulative figure is investment-adjusted. Investment return appears only in the accumulated reserve calculation.
+
+\subsection{Required premium rate}
+
+The calculator determines a constant contribution-base rate that would make the terminal reserve equal to zero before rounding. It first forms future-value weights:
+
+\begin{equation}
+v_t=(1+i)^{T-1-t}.
+\end{equation}
+
+The unrounded required rate is:
+
+\begin{equation}
+\widetilde{r}_j^{\ast}=
+\frac{\displaystyle\sum_{t=0}^{T-1}F_{j,t}v_t}
+   {\displaystyle\sum_{t=0}^{T-1}K_{j,t}v_t}.
+\end{equation}
+
+This is the ratio of the terminal-year future value of projected costs to the terminal-year future value of the applicable contribution base. For maternity, the denominator uses female-worker payroll rather than total payroll.
+
+The JavaScript rounds the rate \textbf{upward} to four decimal places in decimal form:
+
+\begin{equation}
+r_j^{\ast}=\frac{\left\lceil 10{,}000\widetilde{r}_j^{\ast}\right\rceil}{10{,}000}.
+\end{equation}
+
+Because the website displays percentages with two decimal places, this is effectively upward rounding to the next $0.01$ percentage point.
+
+\begin{interpretation}
+The required rate is a level contribution-base rate for the selected horizon and assumptions. It is designed around the final accumulated balance, not a separate annual solvency condition. After upward rounding, applying this rate to the same contribution base produces a terminal reserve that is mathematically non-negative, subject to ordinary floating-point implementation precision. Therefore, it should be read as a scenario rate for this model, not automatically as a statutory or long-term actuarial contribution rate.
+\end{interpretation}

@@ -1,0 +1,11 @@
+*.docx binary
+*.gz binary
+*.pdf binary
+*.zip binary
+
+*.aux -whitespace
+*.fdb_latexmk -whitespace
+*.fls -whitespace
+*.log -whitespace
+*.out -whitespace
+*.toc -whitespace

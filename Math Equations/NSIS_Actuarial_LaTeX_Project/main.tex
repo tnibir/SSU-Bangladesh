@@ -1,0 +1,113 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+
+\definecolor{NSISGreen}{HTML}{006A3D}
+\definecolor{NSISDark}{HTML}{073B25}
+\definecolor{NSISLight}{HTML}{EEF7F2}
+\definecolor{NSISGold}{HTML}{D99A00}
+\definecolor{TextGray}{HTML}{47574F}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=NSISGreen,
+  urlcolor=NSISGreen,
+  pdftitle={Mathematical Explanation of the NSIS Actuarial Scenario Calculator},
+  pdfauthor={Prepared for the NSIS website}
+}
+
+\pagestyle{plain}
+
+% Keep the heading styling portable: the basic TeX Live installation does not
+% include the optional titlesec package.
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus .2ex}%
+  {\normalfont\Large\bfseries\color{NSISDark}}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
+  {-3.25ex\@plus -1ex\@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\large\bfseries\color{NSISGreen}}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{\z@}%
+  {-3.25ex\@plus -1ex\@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries\color{NSISDark}}}
+\makeatother
+
+\renewcommand{\arraystretch}{1.25}
+
+% A small, dependency-free replacement for the tcolorbox features used here.
+% The minipage keeps each short callout together and supports normal LaTeX
+% paragraphs, lists, and displayed mathematics inside it.
+\newsavebox{\titledboxcontent}
+\newenvironment{titledbox}[3]{%
+  \par\medskip\noindent
+  \setlength{\fboxsep}{8pt}%
+  \def\titledboxframe{#2}%
+  \def\titledboxback{#3}%
+  \begin{lrbox}{\titledboxcontent}%
+    \begin{minipage}{0.91\textwidth}%
+      \textbf{#1}\par\smallskip
+}{%
+    \end{minipage}%
+  \end{lrbox}%
+  \fcolorbox{\titledboxframe}{\titledboxback}{\usebox{\titledboxcontent}}%
+  \par\medskip
+}
+
+\newcommand{\Tk}{\text{Tk}}
+\newcommand{\policybox}[2]{%
+  \begin{titledbox}{#1}{NSISGreen}{NSISLight}#2\end{titledbox}}
+
+\newenvironment{interpretation}{%
+  \begin{titledbox}{Actuarial interpretation}{NSISGreen!55}{white}%
+}{\end{titledbox}}
+
+\newenvironment{importantnote}{%
+  \begin{titledbox}{Important implementation note}{NSISGold}{yellow!8}%
+}{\end{titledbox}}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\begin{titlepage}
+\centering
+\vspace*{20mm}
+{\color{NSISGreen}\rule{\textwidth}{1.5pt}}\\[14mm]
+{\Huge\bfseries\color{NSISDark} Mathematical Explanation of the\\[3mm]
+NSIS Actuarial Scenario Calculator\par}
+\vspace{8mm}
+{\Large Four Policy Models and Their Projection Functions\par}
+\vspace{12mm}
+\begin{titledbox}{\strut}{NSISGreen}{NSISLight}
+\centering
+This document explains only the mathematical functions implemented in the website. It does not introduce external assumptions, laws, rates, or evidence.
+\end{titledbox}
+\vfill
+{\large Source files examined: \texttt{index.html} and \texttt{script.js}\par}
+\vspace{4mm}
+{\large Prepared as a VS Code/Overleaf-compatible \LaTeX{} project\par}
+\vspace{18mm}
+{\color{NSISGreen}\rule{\textwidth}{1.5pt}}
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\input{sections/01_scope}
+\input{sections/02_common_framework}
+\input{sections/03_four_policies}
+\input{sections/04_outputs_and_limits}
+\input{sections/05_source_mapping}
+
+\end{document}
