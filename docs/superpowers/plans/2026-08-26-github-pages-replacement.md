@@ -55,6 +55,7 @@ Create `.gitignore`:
 node_modules/
 playwright-report/
 test-results/
+_site/
 ```
 
 Create `package.json`:
@@ -69,6 +70,7 @@ Create `package.json`:
     "node": ">=20"
   },
   "scripts": {
+    "build": "node scripts/build-pages.mjs",
     "test:static": "node --test tests/*.test.mjs",
     "test:browser": "playwright test",
     "test": "npm run test:static && npm run test:browser"
@@ -387,50 +389,103 @@ git commit -m "test: cover Pages interactions in Chromium"
 
 ---
 
-### Task 3: GitHub Pages Workflow
+### Task 3: Tested Pages Artifact and GitHub Pages Workflow
 
 **Files:**
 
-- Create: `tests/pages-workflow.test.mjs`
+- Create: `tests/pages-artifact.test.mjs`
+- Create: `scripts/build-pages.mjs`
 - Create: `.github/workflows/pages.yml`
+- Modify: `.gitignore`
+- Modify: `package.json`
 
 **Interfaces:**
 
 - Consumes: `npm test` from Tasks 1–2 and the website directory.
-- Produces: a GitHub Pages artifact and deployment from pushes to `main`.
+- Produces: a tested `_site` artifact containing only the publishable website, plus deployment from pushes to `main`.
 
-- [ ] **Step 1: Write the failing workflow contract test**
+- [ ] **Step 1: Write the failing Pages artifact behavior test**
 
-Create `tests/pages-workflow.test.mjs`:
+Create `tests/pages-artifact.test.mjs`:
 
 ```js
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, mkdtemp, readFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 
-test("Pages workflow tests and deploys only the website directory", async () => {
-  const workflow = await readFile(".github/workflows/pages.yml", "utf8");
-  assert.match(workflow, /actions\/checkout@v6/);
-  assert.match(workflow, /actions\/setup-node@v6/);
-  assert.match(workflow, /node-version:\s*24/);
-  assert.match(workflow, /npx playwright install --with-deps chromium/);
-  assert.match(workflow, /npm test/);
-  assert.match(workflow, /actions\/configure-pages@v5/);
-  assert.match(workflow, /actions\/upload-pages-artifact@v4/);
-  assert.match(workflow, /path:\s*["']NSIS-Current State & Projection["']/);
-  assert.match(workflow, /actions\/deploy-pages@v4/);
-  assert.match(workflow, /pages:\s*write/);
-  assert.match(workflow, /id-token:\s*write/);
+test("Pages build publishes the complete website without repository-only documents", async () => {
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "ssu-pages-test-"));
+  const output = path.join(tempRoot, "artifact");
+  const result = spawnSync(process.execPath, ["scripts/build-pages.mjs", "--output", output], {
+    cwd: process.cwd(),
+    encoding: "utf8"
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  await Promise.all([
+    access(path.join(output, "index.html")),
+    access(path.join(output, "lifecycle-chart.html")),
+    access(path.join(output, "vendor/d3/d3.min.js")),
+    access(path.join(output, "data/lifecycle-data.json")),
+    access(path.join(output, ".nojekyll"))
+  ]);
+  const html = await readFile(path.join(output, "lifecycle-chart.html"), "utf8");
+  assert.match(html, /src="vendor\/d3\/d3\.min\.js"/);
+  await assert.rejects(access(path.join(output, "Math Functions.pdf")));
+  await assert.rejects(access(path.join(output, "docs")));
 });
 ```
 
-- [ ] **Step 2: Run the workflow test and verify it fails**
+- [ ] **Step 2: Run the artifact test and verify it fails**
 
 Run: `npm run test:static`
 
-Expected: FAIL with `ENOENT` for `.github/workflows/pages.yml`.
+Expected: FAIL because `scripts/build-pages.mjs` does not exist and the spawned Node process exits nonzero.
 
-- [ ] **Step 3: Add the tested Pages workflow**
+- [ ] **Step 3: Implement the minimal Pages artifact builder**
+
+Create `scripts/build-pages.mjs`:
+
+```js
+import { cp, rm } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const source = path.join(root, "NSIS-Current State & Projection");
+const outputFlag = process.argv.indexOf("--output");
+const output = path.resolve(outputFlag >= 0 ? process.argv[outputFlag + 1] : path.join(root, "_site"));
+
+if (!output || output === root || output === path.parse(output).root) {
+  throw new Error(`Refusing unsafe Pages output path: ${output}`);
+}
+
+await rm(output, { recursive: true, force: true });
+await cp(source, output, { recursive: true });
+```
+
+Add `_site/` to `.gitignore` and add this script to `package.json`:
+
+```json
+"build": "node scripts/build-pages.mjs"
+```
+
+- [ ] **Step 4: Run the artifact test and build the real artifact**
+
+Run:
+
+```bash
+npm run test:static
+npm run build
+```
+
+Expected: the Node suite reports 4 passing tests and `_site/index.html`, `_site/lifecycle-chart.html`, `_site/vendor/d3/d3.min.js`, and `_site/.nojekyll` exist.
+
+- [ ] **Step 5: Add the Pages workflow using the tested artifact**
 
 Create `.github/workflows/pages.yml`:
 
@@ -468,12 +523,14 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify static site
         run: npm test
+      - name: Build Pages artifact
+        run: npm run build
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: 'NSIS-Current State & Projection'
+          path: '_site'
 
   deploy:
     needs: build
@@ -487,7 +544,7 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-- [ ] **Step 4: Re-run the full suite and validate the workflow diff**
+- [ ] **Step 6: Re-run the full suite and validate the workflow diff**
 
 Run:
 
@@ -498,10 +555,10 @@ git diff --check
 
 Expected: Node reports 4 passing static tests, Playwright reports 3 passes, and `git diff --check` exits 0.
 
-- [ ] **Step 5: Commit the Pages workflow**
+- [ ] **Step 7: Commit the Pages builder and workflow**
 
 ```bash
-git add .github/workflows/pages.yml tests/pages-workflow.test.mjs
+git add .github/workflows/pages.yml scripts/build-pages.mjs tests/pages-artifact.test.mjs .gitignore package.json
 git commit -m "ci: deploy NSIS website to GitHub Pages"
 ```
 
